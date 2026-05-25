@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeanMate OOP 식단·운동 체크 웹앱</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --panel: #ffffff;
+      --ink: #17211c;
+      --muted: #66736b;
+      --line: #d9dfd6;
+      --green: #2f7d57;
+      --green-dark: #1f5f40;
+      --mint: #dff3e7;
+      --blue: #2d6f9f;
+      --blue-soft: #d9edf7;
+      --amber: #b97818;
+      --amber-soft: #fff0cf;
+      --rose: #b94d53;
+      --rose-soft: #ffe0df;
+      --shadow: 0 16px 40px rgba(23, 33, 28, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(246, 247, 242, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--green);
+      color: white;
+      font-weight: 900;
+    }
+
+    .nav-note {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .hero-copy {
+      padding: 18px 0 8px;
+    }
+
+    .eyebrow {
+      color: var(--green-dark);
+      font-weight: 800;
+      font-size: 14px;
+      margin: 0 0 10px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p {
+      max-width: 680px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .hero-panel,
+    .panel,
+    .class-card,
+    .member-row,
+    .meal-row {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-panel {
+      padding: 18px;
+      min-height: 280px;
+      display: grid;
+      align-content: space-between;
+      overflow: hidden;
+    }
+
+    .plate-scene {
+      height: 185px;
+      position: relative;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 48%, #ffffff 0 38%, #d8e6dc 39% 41%, transparent 42%),
+        linear-gradient(135deg, #eef7f1, #f9f4df);
+      border: 1px solid #d9e5dc;
+    }
+
+    .food-dot {
+      position: absolute;
+      border-radius: 999px;
+      box-shadow: inset 0 -8px 16px rgba(23, 33, 28, 0.08);
+    }
+
+    .rice {
+      width: 78px;
+      height: 58px;
+      left: 34%;
+      top: 40%;
+      background: #f7f4e7;
+      border: 1px solid #e7dfbf;
+    }
+
+    .chicken {
+      width: 96px;
+      height: 50px;
+      right: 24%;
+      top: 32%;
+      background: #d7a46b;
+      transform: rotate(-16deg);
+    }
+
+    .greens {
+      width: 68px;
+      height: 68px;
+      left: 25%;
+      top: 24%;
+      background: #5ea86f;
+    }
+
+    .egg {
+      width: 48px;
+      height: 48px;
+      right: 32%;
+      bottom: 23%;
+      background: #fff8d7;
+    }
+
+    .egg::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      left: 14px;
+      top: 14px;
+      background: #f0ba38;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfa;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .panel-subtitle {
+      margin: -8px 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fbfcfa;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(47, 125, 87, 0.13);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      min-height: 42px;
+      border-radius: 8px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      color: white;
+      background: var(--green);
+    }
+
+    .btn:hover {
+      background: var(--green-dark);
+    }
+
+    .btn.secondary {
+      color: var(--ink);
+      background: #edf2ec;
+      border: 1px solid var(--line);
+    }
+
+    .btn.secondary:hover {
+      background: #e1e8df;
+    }
+
+    .btn.warn {
+      background: var(--amber);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .summary-cell {
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--mint);
+      border: 1px solid #c8e8d5;
+    }
+
+    .summary-cell:nth-child(2) {
+      background: var(--blue-soft);
+      border-color: #c0dfed;
+    }
+
+    .summary-cell:nth-child(3) {
+      background: var(--amber-soft);
+      border-color: #f2d49c;
+    }
+
+    .summary-cell:nth-child(4) {
+      background: var(--rose-soft);
+      border-color: #f2c2c0;
+    }
+
+    .summary-cell span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .summary-cell strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 20px;
+    }
+
+    .meal-list,
+    .member-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .meal-row,
+    .member-row {
+      padding: 12px;
+      box-shadow: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .meal-row strong,
+    .member-row strong {
+      display: block;
+    }
+
+    .row-note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-pill {
+      min-width: 74px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #eef2ee;
+      color: var(--muted);
+    }
+
+    .status-pill.done {
+      background: var(--mint);
+      color: var(--green-dark);
+    }
+
+    .uml {
+      display: grid;
+      gap: 14px;
+    }
+
+    .class-card {
+      box-shadow: none;
+      padding: 14px;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .class-card button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .class-card:hover,
+    .class-card.active {
+      transform: translateY(-2px);
+      border-color: var(--green);
+      background: #fbfffc;
+    }
+
+    .class-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: var(--green-dark);
+      background: var(--mint);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .class-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .children {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      position: relative;
+    }
+
+    .arrow {
+      color: var(--muted);
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .output {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #17211c;
+      color: #f4fbf6;
+      min-height: 118px;
+    }
+
+    .output strong {
+      color: #9de0ba;
+    }
+
+    .code-box {
+      margin: 14px 0 0;
+      padding: 14px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #0f1713;
+      color: #d7f7e2;
+      font-size: 13px;
+    }
+
+    .ranking {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rank-row {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: #fbfcfa;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .rank-no {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .data-structure-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ds-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fbfcfa;
+      font-size: 14px;
+    }
+
+    .ds-item strong {
+      color: var(--green-dark);
+    }
+
+    @media (max-width: 940px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .children,
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner,
+      main {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .topbar-inner,
+      .meal-row,
+      .member-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav-note {
+        text-align: left;
+      }
+
+      .control-grid,
+      .children,
+      .summary-grid,
+      .hero-metrics,
+      .ds-item {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">LM</div>
+          <div>
+            LeanMate
+            <div class="row-note">OOP Polymorphism Diet App</div>
+          </div>
+        </div>
+        <div class="nav-note">식단 계산 · 운동 출석 · 그룹 랭킹 · 상속 구조 시각화</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">자료구조 과제 2 웹앱</p>
+          <h1>오늘 먹은 것과 운동 체크를 한 화면에서 관리하는 린매스업 도우미</h1>
+          <p>
+            음식 데이터는 Map으로 빠르게 찾고, 오늘 식단은 배열로 누적하며, 출석 기록은 랭킹으로 정렬합니다.
+            아래 OOP 다이어그램의 클래스를 누르면 같은 run() 메서드가 서로 다른 방식으로 실행됩니다.
+          </p>
+        </div>
+        <aside class="hero-panel" aria-label="식단 요약 미리보기">
+          <div class="plate-scene">
+            <div class="food-dot greens"></div>
+            <div class="food-dot rice"></div>
+            <div class="food-dot chicken"></div>
+            <div class="food-dot egg"></div>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric">
+              <span>오늘 섭취</span>
+              <strong id="heroCalories">0 kcal</strong>
+            </div>
+            <div class="metric">
+              <span>남은 열량</span>
+              <strong id="heroRemain">2300</strong>
+            </div>
+            <div class="metric">
+              <span>그룹 출석</span>
+              <strong id="heroAttend">3/5</strong>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <div>
+          <section class="panel" aria-labelledby="meal-title">
+            <h2 id="meal-title">오늘의 식단 기록</h2>
+            <p class="panel-subtitle">샘플 음식 DB에서 메뉴를 고르고 먹은 g 수를 입력하면 kcal와 탄단지가 누적됩니다.</p>
+            <div class="control-grid">
+              <label>
+                하루 목표 kcal
+                <input id="goalCalories" type="number" value="2300" min="1000" step="50">
+              </label>
+              <label>
+                목표 단백질 g
+                <input id="goalProtein" type="number" value="150" min="50" step="5">
+              </label>
+              <label>
+                음식 선택
+                <select id="foodSelect"></select>
+              </label>
+              <label>
+                섭취량 g
+                <input id="gramsInput" type="number" value="100" min="10" step="10">
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="btn" id="addMealBtn" type="button" title="선택한 음식을 식단에 추가">+ 추가</button>
+              <button class="btn secondary" id="undoMealBtn" type="button" title="마지막 추가 기록 취소">↶ 취소</button>
+              <button class="btn secondary" id="resetMealBtn" type="button" title="오늘 식단 초기화">× 초기화</button>
+            </div>
+
+            <div class="summary-grid" aria-label="영양 요약">
+              <div class="summary-cell">
+                <span>총 칼로리</span>
+                <strong id="totalCalories">0 kcal</strong>
+              </div>
+              <div class="summary-cell">
+                <span>탄수화물</span>
+                <strong id="totalCarbs">0 g</strong>
+              </div>
+              <div class="summary-cell">
+                <span>단백질</span>
+                <strong id="totalProtein">0 g</strong>
+              </div>
+              <div class="summary-cell">
+                <span>지방</span>
+                <strong id="totalFat">0 g</strong>
+              </div>
+            </div>
+
+            <div id="calorieMessage" class="output">
+              식단을 추가하면 오늘 앞으로 먹을 수 있는 kcal와 단백질 달성률이 표시됩니다.
+            </div>
+            <div id="mealList" class="meal-list" aria-live="polite"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="oop-title">
+            <h2 id="oop-title">OOP 상속 구조와 다형성 인터랙션</h2>
+            <p class="panel-subtitle">부모 타입 FitnessRecord 배열에 서로 다른 자식 객체를 담고, 클릭 시 각자의 run() 오버라이딩 결과를 보여줍니다.</p>
+            <div class="uml">
+              <div class="class-card active" data-card="FitnessRecord">
+                <button type="button" data-class="base">
+                  <div class="class-title">
+                    <span>FitnessRecord</span>
+                    <span class="tag">Base class</span>
+                  </div>
+                  <p>공통 속성 name, createdAt과 공통 메서드 run()을 정의합니다.</p>
+                </button>
+              </div>
+              <div class="arrow">상속 extends</div>
+              <div class="children">
+                <div class="class-card" data-card="MealRecord">
+                  <button type="button" data-class="meal">
+                    <div class="class-title">
+                      <span>MealRecord</span>
+                      <span class="tag">override</span>
+                    </div>
+                    <p>음식 영양성분을 계산해서 오늘 섭취량에 반영합니다.</p>
+                  </button>
+                </div>
+                <div class="class-card" data-card="WorkoutCheckIn">
+                  <button type="button" data-class="workout">
+                    <div class="class-title">
+                      <span>WorkoutCheckIn</span>
+                      <span class="tag">override</span>
+                    </div>
+                    <p>오늘 운동 완료 여부와 연속 출석일을 갱신합니다.</p>
+                  </button>
+                </div>
+                <div class="class-card" data-card="GroupChallenge">
+                  <button type="button" data-class="group">
+                    <div class="class-title">
+                      <span>GroupChallenge</span>
+                      <span class="tag">override</span>
+                    </div>
+                    <p>그룹원의 주간 출석 수를 정렬해 랭킹을 만듭니다.</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div id="polymorphismOutput" class="output">
+              <strong>FitnessRecord.run()</strong><br>
+              부모 클래스는 실행 규칙만 정의합니다. 자식 클래스를 클릭해 다형성 결과를 확인하세요.
+            </div>
+            <pre class="code-box"><code>const records = [
+  new MealRecord("닭가슴살 식단"),
+  new WorkoutCheckIn("오늘 운동"),
+  new GroupChallenge("헬스장 경쟁")
+];
+
+records.forEach(record =&gt; record.run());</code></pre>
+          </section>
+        </div>
+
+        <aside>
+          <section class="panel" aria-labelledby="group-title">
+            <h2 id="group-title">그룹 운동 출석</h2>
+            <p class="panel-subtitle">같은 목표를 가진 사람끼리 오늘 운동 여부를 체크하고 주간 출석 횟수를 비교합니다.</p>
+            <div class="button-row">
+              <button class="btn" id="checkInBtn" type="button" title="내 운동 출석 체크">✓ 내 출석</button>
+              <button class="btn secondary" id="shuffleBtn" type="button" title="친구들의 오늘 출석 상태 예시 변경">↻ 그룹 갱신</button>
+            </div>
+            <div id="memberList" class="member-list"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="ranking-title">
+            <h2 id="ranking-title">주간 랭킹</h2>
+            <p class="panel-subtitle">출석 횟수를 기준으로 높은 순서대로 정렬합니다.</p>
+            <div id="rankingList" class="ranking"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="ds-title">
+            <h2 id="ds-title">사용한 자료구조</h2>
+            <div class="data-structure-list">
+              <div class="ds-item">
+                <strong>Map</strong>
+                <span>음식 이름을 key로 저장해 영양성분을 빠르게 조회합니다.</span>
+              </div>
+              <div class="ds-item">
+                <strong>Array</strong>
+                <span>오늘 먹은 식단 목록과 그룹원 목록을 순서대로 관리합니다.</span>
+              </div>
+              <div class="ds-item">
+                <strong>Stack</strong>
+                <span>마지막 식단 추가 기록을 되돌리는 undo 기능에 사용합니다.</span>
+              </div>
+              <div class="ds-item">
+                <strong>Sort</strong>
+                <span>주간 출석 횟수 기반 랭킹을 계산합니다.</span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    class FitnessRecord {
+      constructor(name) {
+        this.name = name;
+        this.createdAt = new Date();
+      }
+
+      run() {
+        return {
+          title: "FitnessRecord.run()",
+          body: "부모 클래스는 공통 인터페이스를 제공합니다. 실제 행동은 자식 클래스가 오버라이딩합니다."
+        };
+      }
+    }
+
+    class MealRecord extends FitnessRecord {
+      run() {
+        const totals = calculateTotals();
+        const goal = Number(goalCalories.value);
+        const remain = Math.max(goal - totals.calories, 0);
+        return {
+          title: "MealRecord.run()",
+          body: `식단 기록 객체는 총 ${Math.round(totals.calories)} kcal를 계산했습니다. 오늘은 약 ${Math.round(remain)} kcal를 더 먹을 수 있습니다.`
+        };
+      }
+    }
+
+    class WorkoutCheckIn extends FitnessRecord {
+      run() {
+        const me = members.find((member) => member.name === "나");
+        me.checked = true;
+        me.week += me.week < 7 ? 1 : 0;
+        renderGroup();
+        return {
+          title: "WorkoutCheckIn.run()",
+          body: `운동 출석 객체는 ${me.name}의 오늘 출석을 완료로 바꾸고, 주간 출석을 ${me.week}회로 갱신했습니다.`
+        };
+      }
+    }
+
+    class GroupChallenge extends FitnessRecord {
+      run() {
+        const leader = [...members].sort((a, b) => b.week - a.week)[0];
+        return {
+          title: "GroupChallenge.run()",
+          body: `그룹 챌린지 객체는 출석 횟수를 정렬했습니다. 현재 1위는 ${leader.name}, 주간 ${leader.week}회 출석입니다.`
+        };
+      }
+    }
+
+    const foodDatabase = new Map([
+      ["닭가슴살", { calories: 165, carbs: 0, protein: 31, fat: 3.6 }],
+      ["현미밥", { calories: 145, carbs: 31, protein: 2.7, fat: 1 }],
+      ["계란", { calories: 155, carbs: 1.1, protein: 13, fat: 11 }],
+      ["바나나", { calories: 89, carbs: 23, protein: 1.1, fat: 0.3 }],
+      ["그릭요거트", { calories: 97, carbs: 3.6, protein: 10, fat: 5 }],
+      ["연어", { calories: 208, carbs: 0, protein: 20, fat: 13 }],
+      ["고구마", { calories: 86, carbs: 20, protein: 1.6, fat: 0.1 }],
+      ["두부", { calories: 76, carbs: 1.9, protein: 8, fat: 4.8 }]
+    ]);
+
+    const meals = [];
+    const undoStack = [];
+    const members = [
+      { name: "나", checked: false, week: 3, streak: 2 },
+      { name: "민준", checked: true, week: 5, streak: 5 },
+      { name: "서연", checked: true, week: 4, streak: 3 },
+      { name: "지훈", checked: false, week: 2, streak: 1 },
+      { name: "하은", checked: true, week: 6, streak: 6 }
+    ];
+
+    const goalCalories = document.querySelector("#goalCalories");
+    const goalProtein = document.querySelector("#goalProtein");
+    const foodSelect = document.querySelector("#foodSelect");
+    const gramsInput = document.querySelector("#gramsInput");
+    const mealList = document.querySelector("#mealList");
+    const memberList = document.querySelector("#memberList");
+    const rankingList = document.querySelector("#rankingList");
+    const calorieMessage = document.querySelector("#calorieMessage");
+    const polyOutput = document.querySelector("#polymorphismOutput");
+
+    const polymorphicRecords = {
+      base: new FitnessRecord("공통 기록"),
+      meal: new MealRecord("식단 기록"),
+      workout: new WorkoutCheckIn("운동 출석"),
+      group: new GroupChallenge("그룹 챌린지")
+    };
+
+    function initFoodOptions() {
+      foodSelect.innerHTML = [...foodDatabase.keys()]
+        .map((name) => `<option value="${name}">${name}</option>`)
+        .join("");
+    }
+
+    function calculateTotals() {
+      return meals.reduce((total, meal) => {
+        total.calories += meal.calories;
+        total.carbs += meal.carbs;
+        total.protein += meal.protein;
+        total.fat += meal.fat;
+        return total;
+      }, { calories: 0, carbs: 0, protein: 0, fat: 0 });
+    }
+
+    function formatGram(value) {
+      return `${Math.round(value * 10) / 10} g`;
+    }
+
+    function addMeal() {
+      const name = foodSelect.value;
+      const grams = Math.max(Number(gramsInput.value), 10);
+      const nutrition = foodDatabase.get(name);
+      const ratio = grams / 100;
+      const meal = {
+        name,
+        grams,
+        calories: nutrition.calories * ratio,
+        carbs: nutrition.carbs * ratio,
+        protein: nutrition.protein * ratio,
+        fat: nutrition.fat * ratio
+      };
+      meals.push(meal);
+      undoStack.push(meal);
+      renderMeals();
+      showPolymorphism("meal");
+    }
+
+    function undoMeal() {
+      if (undoStack.length === 0) return;
+      const last = undoStack.pop();
+      const index = meals.lastIndexOf(last);
+      if (index >= 0) meals.splice(index, 1);
+      renderMeals();
+    }
+
+    function resetMeals() {
+      meals.splice(0, meals.length);
+      undoStack.splice(0, undoStack.length);
+      renderMeals();
+    }
+
+    function renderMeals() {
+      const totals = calculateTotals();
+      const goal = Number(goalCalories.value);
+      const proteinGoal = Number(goalProtein.value);
+      const remain = goal - totals.calories;
+      const proteinRate = proteinGoal > 0 ? Math.min((totals.protein / proteinGoal) * 100, 999) : 0;
+
+      document.querySelector("#totalCalories").textContent = `${Math.round(totals.calories)} kcal`;
+      document.querySelector("#totalCarbs").textContent = formatGram(totals.carbs);
+      document.querySelector("#totalProtein").textContent = formatGram(totals.protein);
+      document.querySelector("#totalFat").textContent = formatGram(totals.fat);
+      document.querySelector("#heroCalories").textContent = `${Math.round(totals.calories)} kcal`;
+      document.querySelector("#heroRemain").textContent = `${Math.max(Math.round(remain), 0)} kcal`;
+
+      calorieMessage.innerHTML = `
+        <strong>오늘의 식단 분석</strong><br>
+        목표 ${goal} kcal 기준으로 ${remain >= 0 ? `앞으로 ${Math.round(remain)} kcal 더 먹을 수 있습니다.` : `${Math.abs(Math.round(remain))} kcal 초과했습니다.`}
+        단백질은 목표의 ${Math.round(proteinRate)}%를 채웠습니다.
+      `;
+
+      if (meals.length === 0) {
+        mealList.innerHTML = `<div class="meal-row"><div><strong>아직 기록된 식단이 없습니다.</strong><span class="row-note">음식을 추가하면 이곳에 표시됩니다.</span></div></div>`;
+        return;
+      }
+
+      mealList.innerHTML = meals.map((meal) => `
+        <div class="meal-row">
+          <div>
+            <strong>${meal.name} ${meal.grams}g</strong>
+            <span class="row-note">탄 ${formatGram(meal.carbs)} · 단 ${formatGram(meal.protein)} · 지 ${formatGram(meal.fat)}</span>
+          </div>
+          <span class="status-pill done">${Math.round(meal.calories)} kcal</span>
+        </div>
+      `).join("");
+    }
+
+    function renderGroup() {
+      const attended = members.filter((member) => member.checked).length;
+      document.querySelector("#heroAttend").textContent = `${attended}/${members.length}`;
+
+      memberList.innerHTML = members.map((member) => `
+        <div class="member-row">
+          <div>
+            <strong>${member.name}</strong>
+            <span class="row-note">주간 ${member.week}회 · 연속 ${member.streak}일</span>
+          </div>
+          <span class="status-pill ${member.checked ? "done" : ""}">${member.checked ? "완료" : "미완료"}</span>
+        </div>
+      `).join("");
+
+      const ranking = [...members].sort((a, b) => b.week - a.week || b.streak - a.streak);
+      rankingList.innerHTML = ranking.map((member, index) => `
+        <div class="rank-row">
+          <div class="rank-no">${index + 1}</div>
+          <div>
+            <strong>${member.name}</strong>
+            <div class="row-note">연속 ${member.streak}일 출석</div>
+          </div>
+          <strong>${member.week}회</strong>
+        </div>
+      `).join("");
+    }
+
+    function shuffleGroup() {
+      members.forEach((member) => {
+        if (member.name === "나") return;
+        member.checked = Math.random() > 0.35;
+        member.week = Math.min(7, Math.max(1, member.week + (Math.random() > 0.5 ? 1 : -1)));
+        member.streak = member.checked ? Math.min(7, member.streak + 1) : 0;
+      });
+      renderGroup();
+      showPolymorphism("group");
+    }
+
+    function showPolymorphism(type) {
+      const result = polymorphicRecords[type].run();
+      document.querySelectorAll(".class-card").forEach((card) => card.classList.remove("active"));
+      const activeButton = document.querySelector(`[data-class="${type}"]`);
+      activeButton.closest(".class-card").classList.add("active");
+      polyOutput.innerHTML = `<strong>${result.title}</strong><br>${result.body}`;
+    }
+
+    document.querySelector("#addMealBtn").addEventListener("click", addMeal);
+    document.querySelector("#undoMealBtn").addEventListener("click", undoMeal);
+    document.querySelector("#resetMealBtn").addEventListener("click", resetMeals);
+    document.querySelector("#checkInBtn").addEventListener("click", () => showPolymorphism("workout"));
+    document.querySelector("#shuffleBtn").addEventListener("click", shuffleGroup);
+    goalCalories.addEventListener("input", renderMeals);
+    goalProtein.addEventListener("input", renderMeals);
+    document.querySelectorAll("[data-class]").forEach((button) => {
+      button.addEventListener("click", () => showPolymorphism(button.dataset.class));
+    });
+
+    initFoodOptions();
+    renderMeals();
+    renderGroup();
+  </script>
+</body>
+</html>
