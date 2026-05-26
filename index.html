@@ -3,24 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LeanMate OOP 식단·운동 체크 웹앱</title>
+  <title>LeanMate</title>
   <style>
     :root {
       --bg: #f6f7f2;
-      --panel: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #fbfcfa;
       --ink: #17211c;
-      --muted: #66736b;
-      --line: #d9dfd6;
+      --muted: #647269;
+      --line: #dbe2d8;
       --green: #2f7d57;
       --green-dark: #1f5f40;
-      --mint: #dff3e7;
-      --blue: #2d6f9f;
-      --blue-soft: #d9edf7;
-      --amber: #b97818;
-      --amber-soft: #fff0cf;
-      --rose: #b94d53;
-      --rose-soft: #ffe0df;
-      --shadow: 0 16px 40px rgba(23, 33, 28, 0.08);
+      --mint: #ddf2e6;
+      --blue: #2e6f9d;
+      --blue-soft: #dceef7;
+      --amber: #b67815;
+      --amber-soft: #fff0d1;
+      --red: #b94d53;
+      --red-soft: #ffe2e1;
+      --shadow: 0 18px 42px rgba(23, 33, 28, 0.08);
     }
 
     * {
@@ -29,8 +30,8 @@
 
     body {
       margin: 0;
-      background: var(--bg);
       color: var(--ink);
+      background: var(--bg);
       font-family: Arial, "Noto Sans KR", sans-serif;
       line-height: 1.5;
     }
@@ -46,14 +47,10 @@
       cursor: pointer;
     }
 
-    .app-shell {
-      min-height: 100vh;
-    }
-
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
       border-bottom: 1px solid var(--line);
       background: rgba(246, 247, 242, 0.94);
       backdrop-filter: blur(14px);
@@ -62,42 +59,69 @@
     .topbar-inner {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 18px;
     }
 
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-weight: 800;
-      letter-spacing: 0;
-    }
-
-    .brand-mark {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: var(--green);
-      color: white;
       font-weight: 900;
     }
 
-    .nav-note {
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--green);
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tab-btn {
+      min-height: 38px;
+      border-radius: 8px;
+      padding: 0 12px;
       color: var(--muted);
-      font-size: 14px;
-      text-align: right;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .tab-btn.active {
+      color: var(--green-dark);
+      background: var(--mint);
+    }
+
+    body.needs-setup .tab-btn:not([data-view-target="planner"]) {
+      display: none;
     }
 
     main {
       max-width: 1180px;
       margin: 0 auto;
       padding: 28px 24px 56px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
     }
 
     .hero {
@@ -113,10 +137,10 @@
     }
 
     .eyebrow {
-      color: var(--green-dark);
-      font-weight: 800;
-      font-size: 14px;
       margin: 0 0 10px;
+      color: var(--green-dark);
+      font-size: 14px;
+      font-weight: 900;
     }
 
     h1 {
@@ -134,20 +158,19 @@
       font-size: 17px;
     }
 
-    .hero-panel,
     .panel,
-    .class-card,
-    .member-row,
-    .meal-row {
-      background: var(--panel);
+    .hero-panel,
+    .record-row,
+    .class-card {
       border: 1px solid var(--line);
       border-radius: 8px;
+      background: var(--surface);
       box-shadow: var(--shadow);
     }
 
     .hero-panel {
       padding: 18px;
-      min-height: 280px;
+      min-height: 285px;
       display: grid;
       align-content: space-between;
       overflow: hidden;
@@ -156,11 +179,11 @@
     .plate-scene {
       height: 185px;
       position: relative;
+      border: 1px solid #d8e4da;
       border-radius: 8px;
       background:
-        radial-gradient(circle at 50% 48%, #ffffff 0 38%, #d8e6dc 39% 41%, transparent 42%),
+        radial-gradient(circle at 50% 48%, #fff 0 38%, #d9e7dc 39% 41%, transparent 42%),
         linear-gradient(135deg, #eef7f1, #f9f4df);
-      border: 1px solid #d9e5dc;
     }
 
     .food-dot {
@@ -169,30 +192,30 @@
       box-shadow: inset 0 -8px 16px rgba(23, 33, 28, 0.08);
     }
 
+    .greens {
+      width: 70px;
+      height: 70px;
+      left: 24%;
+      top: 24%;
+      background: #5da66f;
+    }
+
     .rice {
-      width: 78px;
+      width: 80px;
       height: 58px;
       left: 34%;
-      top: 40%;
-      background: #f7f4e7;
+      top: 41%;
+      background: #f8f5e8;
       border: 1px solid #e7dfbf;
     }
 
-    .chicken {
+    .protein {
       width: 96px;
       height: 50px;
       right: 24%;
       top: 32%;
       background: #d7a46b;
       transform: rotate(-16deg);
-    }
-
-    .greens {
-      width: 68px;
-      height: 68px;
-      left: 25%;
-      top: 24%;
-      background: #5ea86f;
     }
 
     .egg {
@@ -214,27 +237,31 @@
       background: #f0ba38;
     }
 
-    .hero-metrics {
+    .metrics {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 14px;
     }
 
-    .metric {
+    .metric,
+    .summary-cell {
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 12px;
-      background: #fbfcfa;
+      background: var(--surface-soft);
     }
 
-    .metric span {
+    .metric span,
+    .summary-cell span {
       display: block;
       color: var(--muted);
       font-size: 12px;
+      font-weight: 800;
     }
 
-    .metric strong {
+    .metric strong,
+    .summary-cell strong {
       display: block;
       margin-top: 4px;
       font-size: 20px;
@@ -258,13 +285,13 @@
       letter-spacing: 0;
     }
 
-    .panel-subtitle {
+    .panel-note {
       margin: -8px 0 16px;
       color: var(--muted);
       font-size: 14px;
     }
 
-    .control-grid {
+    .form-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
@@ -276,17 +303,18 @@
       gap: 6px;
       color: var(--muted);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     input,
     select {
       width: 100%;
+      min-height: 43px;
       border: 1px solid var(--line);
-      background: #fbfcfa;
-      color: var(--ink);
       border-radius: 8px;
-      padding: 11px 12px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: var(--surface-soft);
       outline: none;
     }
 
@@ -299,21 +327,21 @@
     .button-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
       align-items: center;
+      gap: 10px;
     }
 
     .btn {
       min-height: 42px;
-      border-radius: 8px;
-      padding: 0 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-weight: 800;
+      border-radius: 8px;
+      padding: 0 14px;
       color: white;
       background: var(--green);
+      font-weight: 900;
     }
 
     .btn:hover {
@@ -322,16 +350,12 @@
 
     .btn.secondary {
       color: var(--ink);
-      background: #edf2ec;
       border: 1px solid var(--line);
+      background: #edf2ec;
     }
 
     .btn.secondary:hover {
       background: #e1e8df;
-    }
-
-    .btn.warn {
-      background: var(--amber);
     }
 
     .summary-grid {
@@ -341,16 +365,14 @@
       margin: 16px 0;
     }
 
-    .summary-cell {
-      border-radius: 8px;
-      padding: 12px;
+    .summary-cell:nth-child(1) {
       background: var(--mint);
-      border: 1px solid #c8e8d5;
+      border-color: #c7e8d4;
     }
 
     .summary-cell:nth-child(2) {
       background: var(--blue-soft);
-      border-color: #c0dfed;
+      border-color: #c1dfec;
     }
 
     .summary-cell:nth-child(3) {
@@ -359,42 +381,40 @@
     }
 
     .summary-cell:nth-child(4) {
-      background: var(--rose-soft);
+      background: var(--red-soft);
       border-color: #f2c2c0;
     }
 
-    .summary-cell span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
+    .message {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 8px;
+      color: #f4fbf6;
+      background: #17211c;
     }
 
-    .summary-cell strong {
-      display: block;
-      margin-top: 3px;
-      font-size: 20px;
+    .message strong {
+      color: #9de0ba;
     }
 
-    .meal-list,
-    .member-list {
+    .record-list,
+    .ranking,
+    .architecture-list {
       display: grid;
       gap: 10px;
       margin-top: 12px;
     }
 
-    .meal-row,
-    .member-row {
-      padding: 12px;
+    .record-row {
       box-shadow: none;
+      padding: 12px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      align-items: center;
     }
 
-    .meal-row strong,
-    .member-row strong {
+    .record-row strong {
       display: block;
     }
 
@@ -403,23 +423,106 @@
       font-size: 13px;
     }
 
-    .status-pill {
-      min-width: 74px;
-      text-align: center;
+    .pill {
+      min-width: 76px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 999px;
       padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 800;
-      background: #eef2ee;
       color: var(--muted);
+      background: #eef2ee;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
     }
 
-    .status-pill.done {
-      background: var(--mint);
+    .pill.done {
       color: var(--green-dark);
+      background: var(--mint);
     }
 
-    .uml {
+    .pill.warn {
+      color: #7d4f08;
+      background: var(--amber-soft);
+    }
+
+    .macro-bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) 72px;
+      gap: 10px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .bar-track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e9eee7;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: var(--green);
+    }
+
+    .rank-row {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--surface-soft);
+    }
+
+    .rank-no {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-weight: 900;
+    }
+
+    .attendance-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mini-btn {
+      min-height: 34px;
+      border-radius: 8px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: #edf2ec;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mini-btn.active {
+      color: white;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .uml-tree {
       display: grid;
       gap: 14px;
     }
@@ -432,10 +535,10 @@
 
     .class-card button {
       width: 100%;
-      text-align: left;
-      background: transparent;
-      color: inherit;
       padding: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
     }
 
     .class-card:hover,
@@ -447,10 +550,16 @@
 
     .class-title {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 10px;
-      align-items: center;
       font-weight: 900;
+    }
+
+    .class-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     .tag {
@@ -462,36 +571,16 @@
       white-space: nowrap;
     }
 
-    .class-card p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .children {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      position: relative;
-    }
-
     .arrow {
       color: var(--muted);
       text-align: center;
       font-weight: 900;
     }
 
-    .output {
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 8px;
-      background: #17211c;
-      color: #f4fbf6;
-      min-height: 118px;
-    }
-
-    .output strong {
-      color: #9de0ba;
+    .children {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
     .code-box {
@@ -499,56 +588,9 @@
       padding: 14px;
       overflow: auto;
       border-radius: 8px;
-      background: #0f1713;
       color: #d7f7e2;
+      background: #0f1713;
       font-size: 13px;
-    }
-
-    .ranking {
-      display: grid;
-      gap: 10px;
-    }
-
-    .rank-row {
-      display: grid;
-      grid-template-columns: 38px 1fr auto;
-      gap: 10px;
-      align-items: center;
-      border: 1px solid var(--line);
-      background: #fbfcfa;
-      border-radius: 8px;
-      padding: 10px 12px;
-    }
-
-    .rank-no {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      font-weight: 900;
-    }
-
-    .data-structure-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .ds-item {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px 12px;
-      background: #fbfcfa;
-      font-size: 14px;
-    }
-
-    .ds-item strong {
-      color: var(--green-dark);
     }
 
     @media (max-width: 940px) {
@@ -563,7 +605,7 @@
       }
     }
 
-    @media (max-width: 620px) {
+    @media (max-width: 680px) {
       .topbar-inner,
       main {
         padding-left: 16px;
@@ -571,70 +613,82 @@
       }
 
       .topbar-inner,
-      .meal-row,
-      .member-row {
+      .record-row {
         align-items: flex-start;
         flex-direction: column;
       }
 
-      .nav-note {
-        text-align: left;
+      .tabs {
+        justify-content: flex-start;
       }
 
-      .control-grid,
+      .form-grid,
       .children,
       .summary-grid,
-      .hero-metrics,
-      .ds-item {
+      .metrics,
+      .bar-row {
         grid-template-columns: 1fr;
+      }
+
+      .attendance-actions {
+        justify-content: flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand">
-          <div class="brand-mark">LM</div>
-          <div>
-            LeanMate
-            <div class="row-note">OOP Polymorphism Diet App</div>
-          </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">LM</div>
+        <div>
+          LeanMate
+          <div class="row-note">Nutrition and gym accountability</div>
         </div>
-        <div class="nav-note">식단 계산 · 운동 출석 · 그룹 랭킹 · 상속 구조 시각화</div>
       </div>
-    </header>
+      <nav class="tabs" aria-label="주요 메뉴">
+        <button class="tab-btn active" type="button" data-view-target="dashboard">오늘</button>
+        <button class="tab-btn" type="button" data-view-target="planner">목표</button>
+        <button class="tab-btn" type="button" data-view-target="group">그룹</button>
+        <button class="tab-btn" type="button" data-view-target="architecture">Architecture</button>
+      </nav>
+    </div>
+  </header>
 
-    <main>
+  <main>
+    <section id="dashboard" class="view active">
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">자료구조 과제 2 웹앱</p>
-          <h1>오늘 먹은 것과 운동 체크를 한 화면에서 관리하는 린매스업 도우미</h1>
+          <p class="eyebrow">LeanMate</p>
+          <h1>목표 체중에 맞춰 하루 식단과 운동 출석을 관리하세요.</h1>
           <p>
-            음식 데이터는 Map으로 빠르게 찾고, 오늘 식단은 배열로 누적하며, 출석 기록은 랭킹으로 정렬합니다.
-            아래 OOP 다이어그램의 클래스를 누르면 같은 run() 메서드가 서로 다른 방식으로 실행됩니다.
+            기초대사량과 목표 체중을 바탕으로 하루 섭취 칼로리와 탄단지를 계산하고,
+            실제로 먹은 식단과 그룹 운동 출석을 함께 기록합니다.
           </p>
+          <div class="button-row" style="margin-top: 20px;">
+            <button class="btn" type="button" data-view-target="planner">목표 계산</button>
+            <button class="btn secondary" type="button" data-view-target="group">출석 기록</button>
+          </div>
         </div>
-        <aside class="hero-panel" aria-label="식단 요약 미리보기">
+        <aside class="hero-panel" aria-label="오늘 요약">
           <div class="plate-scene">
             <div class="food-dot greens"></div>
             <div class="food-dot rice"></div>
-            <div class="food-dot chicken"></div>
+            <div class="food-dot protein"></div>
             <div class="food-dot egg"></div>
           </div>
-          <div class="hero-metrics">
+          <div class="metrics">
+            <div class="metric">
+              <span>목표 kcal</span>
+              <strong id="heroGoal">0</strong>
+            </div>
             <div class="metric">
               <span>오늘 섭취</span>
               <strong id="heroCalories">0 kcal</strong>
             </div>
             <div class="metric">
-              <span>남은 열량</span>
-              <strong id="heroRemain">2300</strong>
-            </div>
-            <div class="metric">
-              <span>그룹 출석</span>
-              <strong id="heroAttend">3/5</strong>
+              <span>출석</span>
+              <strong id="heroAttend">0/1</strong>
             </div>
           </div>
         </aside>
@@ -643,19 +697,18 @@
       <section class="grid">
         <div>
           <section class="panel" aria-labelledby="meal-title">
-            <h2 id="meal-title">오늘의 식단 기록</h2>
-            <p class="panel-subtitle">샘플 음식 DB에서 메뉴를 고르고 먹은 g 수를 입력하면 kcal와 탄단지가 누적됩니다.</p>
-            <div class="control-grid">
+            <h2 id="meal-title">오늘의 식단</h2>
+            <div class="form-grid">
               <label>
-                하루 목표 kcal
-                <input id="goalCalories" type="number" value="2300" min="1000" step="50">
+                메뉴 검색
+                <input id="foodSearchInput" type="text" placeholder="예: 서브웨이 로스트치킨 15cm">
               </label>
               <label>
-                목표 단백질 g
-                <input id="goalProtein" type="number" value="150" min="50" step="5">
+                검색 결과 반영
+                <button class="btn secondary" id="searchFoodBtn" type="button">영양정보 검색</button>
               </label>
               <label>
-                음식 선택
+                음식
                 <select id="foodSelect"></select>
               </label>
               <label>
@@ -664,14 +717,18 @@
               </label>
             </div>
             <div class="button-row">
-              <button class="btn" id="addMealBtn" type="button" title="선택한 음식을 식단에 추가">+ 추가</button>
-              <button class="btn secondary" id="undoMealBtn" type="button" title="마지막 추가 기록 취소">↶ 취소</button>
-              <button class="btn secondary" id="resetMealBtn" type="button" title="오늘 식단 초기화">× 초기화</button>
+              <button class="btn" id="addMealBtn" type="button">추가</button>
+              <button class="btn secondary" id="undoMealBtn" type="button">되돌리기</button>
+              <button class="btn secondary" id="resetMealBtn" type="button">초기화</button>
+            </div>
+            <div class="row-note" id="selectedFoodInfo" style="margin-top: 10px;"></div>
+            <div class="row-note" id="searchStatus" style="margin-top: 10px;">
+              기본 음식 DB를 사용하거나, 배포 환경에서 메뉴명을 검색해 영양정보를 추가할 수 있습니다.
             </div>
 
-            <div class="summary-grid" aria-label="영양 요약">
+            <div class="summary-grid" aria-label="오늘 섭취 요약">
               <div class="summary-cell">
-                <span>총 칼로리</span>
+                <span>칼로리</span>
                 <strong id="totalCalories">0 kcal</strong>
               </div>
               <div class="summary-cell">
@@ -688,350 +745,1042 @@
               </div>
             </div>
 
-            <div id="calorieMessage" class="output">
-              식단을 추가하면 오늘 앞으로 먹을 수 있는 kcal와 단백질 달성률이 표시됩니다.
+            <div id="mealMessage" class="message">
+              목표 정보를 입력하면 남은 칼로리와 탄단지 진행률이 표시됩니다.
             </div>
-            <div id="mealList" class="meal-list" aria-live="polite"></div>
-          </section>
-
-          <section class="panel" aria-labelledby="oop-title">
-            <h2 id="oop-title">OOP 상속 구조와 다형성 인터랙션</h2>
-            <p class="panel-subtitle">부모 타입 FitnessRecord 배열에 서로 다른 자식 객체를 담고, 클릭 시 각자의 run() 오버라이딩 결과를 보여줍니다.</p>
-            <div class="uml">
-              <div class="class-card active" data-card="FitnessRecord">
-                <button type="button" data-class="base">
-                  <div class="class-title">
-                    <span>FitnessRecord</span>
-                    <span class="tag">Base class</span>
-                  </div>
-                  <p>공통 속성 name, createdAt과 공통 메서드 run()을 정의합니다.</p>
-                </button>
-              </div>
-              <div class="arrow">상속 extends</div>
-              <div class="children">
-                <div class="class-card" data-card="MealRecord">
-                  <button type="button" data-class="meal">
-                    <div class="class-title">
-                      <span>MealRecord</span>
-                      <span class="tag">override</span>
-                    </div>
-                    <p>음식 영양성분을 계산해서 오늘 섭취량에 반영합니다.</p>
-                  </button>
-                </div>
-                <div class="class-card" data-card="WorkoutCheckIn">
-                  <button type="button" data-class="workout">
-                    <div class="class-title">
-                      <span>WorkoutCheckIn</span>
-                      <span class="tag">override</span>
-                    </div>
-                    <p>오늘 운동 완료 여부와 연속 출석일을 갱신합니다.</p>
-                  </button>
-                </div>
-                <div class="class-card" data-card="GroupChallenge">
-                  <button type="button" data-class="group">
-                    <div class="class-title">
-                      <span>GroupChallenge</span>
-                      <span class="tag">override</span>
-                    </div>
-                    <p>그룹원의 주간 출석 수를 정렬해 랭킹을 만듭니다.</p>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div id="polymorphismOutput" class="output">
-              <strong>FitnessRecord.run()</strong><br>
-              부모 클래스는 실행 규칙만 정의합니다. 자식 클래스를 클릭해 다형성 결과를 확인하세요.
-            </div>
-            <pre class="code-box"><code>const records = [
-  new MealRecord("닭가슴살 식단"),
-  new WorkoutCheckIn("오늘 운동"),
-  new GroupChallenge("헬스장 경쟁")
-];
-
-records.forEach(record =&gt; record.run());</code></pre>
+            <div id="mealList" class="record-list" aria-live="polite"></div>
           </section>
         </div>
 
         <aside>
-          <section class="panel" aria-labelledby="group-title">
-            <h2 id="group-title">그룹 운동 출석</h2>
-            <p class="panel-subtitle">같은 목표를 가진 사람끼리 오늘 운동 여부를 체크하고 주간 출석 횟수를 비교합니다.</p>
-            <div class="button-row">
-              <button class="btn" id="checkInBtn" type="button" title="내 운동 출석 체크">✓ 내 출석</button>
-              <button class="btn secondary" id="shuffleBtn" type="button" title="친구들의 오늘 출석 상태 예시 변경">↻ 그룹 갱신</button>
-            </div>
-            <div id="memberList" class="member-list"></div>
-          </section>
-
-          <section class="panel" aria-labelledby="ranking-title">
-            <h2 id="ranking-title">주간 랭킹</h2>
-            <p class="panel-subtitle">출석 횟수를 기준으로 높은 순서대로 정렬합니다.</p>
-            <div id="rankingList" class="ranking"></div>
-          </section>
-
-          <section class="panel" aria-labelledby="ds-title">
-            <h2 id="ds-title">사용한 자료구조</h2>
-            <div class="data-structure-list">
-              <div class="ds-item">
-                <strong>Map</strong>
-                <span>음식 이름을 key로 저장해 영양성분을 빠르게 조회합니다.</span>
+          <section class="panel" aria-labelledby="today-plan-title">
+            <h2 id="today-plan-title">오늘 목표</h2>
+            <div class="summary-grid">
+              <div class="summary-cell">
+                <span>BMR</span>
+                <strong id="sideBmr">0</strong>
               </div>
-              <div class="ds-item">
-                <strong>Array</strong>
-                <span>오늘 먹은 식단 목록과 그룹원 목록을 순서대로 관리합니다.</span>
+              <div class="summary-cell">
+                <span>TDEE</span>
+                <strong id="sideTdee">0</strong>
               </div>
-              <div class="ds-item">
-                <strong>Stack</strong>
-                <span>마지막 식단 추가 기록을 되돌리는 undo 기능에 사용합니다.</span>
+              <div class="summary-cell">
+                <span>권장 kcal</span>
+                <strong id="sideCalories">0</strong>
               </div>
-              <div class="ds-item">
-                <strong>Sort</strong>
-                <span>주간 출석 횟수 기반 랭킹을 계산합니다.</span>
+              <div class="summary-cell">
+                <span>목표</span>
+                <strong id="sideMode">-</strong>
               </div>
             </div>
+            <div class="macro-bars">
+              <div class="bar-row">
+                <strong>탄수</strong>
+                <div class="bar-track"><div class="bar-fill" id="carbProgress"></div></div>
+                <span id="carbTarget">0 g</span>
+              </div>
+              <div class="bar-row">
+                <strong>단백질</strong>
+                <div class="bar-track"><div class="bar-fill" id="proteinProgress"></div></div>
+                <span id="proteinTarget">0 g</span>
+              </div>
+              <div class="bar-row">
+                <strong>지방</strong>
+                <div class="bar-track"><div class="bar-fill" id="fatProgress"></div></div>
+                <span id="fatTarget">0 g</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="today-group-title">
+            <h2 id="today-group-title">오늘 출석</h2>
+            <label>
+              날짜
+              <input id="attendanceDate" type="date">
+            </label>
+            <div id="compactAttendance" class="record-list"></div>
           </section>
         </aside>
       </section>
-    </main>
-  </div>
+    </section>
+
+    <section id="planner" class="view">
+      <section class="panel" aria-labelledby="planner-title">
+        <h2 id="planner-title">목표 계산</h2>
+        <p class="panel-note" id="setupNotice">처음 시작할 때 목표를 먼저 저장하면 식단과 그룹 메뉴를 사용할 수 있습니다.</p>
+        <div class="form-grid">
+          <label>
+            성별
+            <select id="sexInput">
+              <option value="male">남자</option>
+              <option value="female">여자</option>
+            </select>
+          </label>
+          <label>
+            목적
+            <select id="goalMode">
+              <option value="cut">커팅</option>
+              <option value="maintain">유지</option>
+              <option value="leanBulk" selected>린매스업</option>
+              <option value="bulk">근육량 증가</option>
+            </select>
+          </label>
+          <label>
+            나이
+            <input id="ageInput" type="number" value="23" min="12" max="90">
+          </label>
+          <label>
+            키 cm
+            <input id="heightInput" type="number" value="175" min="120" max="230">
+          </label>
+          <label>
+            현재 체중 kg
+            <input id="weightInput" type="number" value="70" min="35" max="180" step="0.1">
+          </label>
+          <label>
+            목표 체중 kg
+            <input id="targetWeightInput" type="number" value="73" min="35" max="180" step="0.1">
+          </label>
+          <label>
+            활동량
+            <select id="activityInput">
+              <option value="1.2">거의 운동 안 함</option>
+              <option value="1.375">주 1-3회</option>
+              <option value="1.55" selected>주 3-5회</option>
+              <option value="1.725">주 6-7회</option>
+            </select>
+          </label>
+        </div>
+        <div class="button-row">
+          <button class="btn" id="saveProfileBtn" type="button">목표 저장하고 식단 시작</button>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-cell">
+            <span>기초대사량</span>
+            <strong id="plannerBmr">0 kcal</strong>
+          </div>
+          <div class="summary-cell">
+            <span>유지 칼로리</span>
+            <strong id="plannerTdee">0 kcal</strong>
+          </div>
+          <div class="summary-cell">
+            <span>하루 목표</span>
+            <strong id="plannerTarget">0 kcal</strong>
+          </div>
+          <div class="summary-cell">
+            <span>체중 차이</span>
+            <strong id="plannerDiff">0 kg</strong>
+          </div>
+        </div>
+        <div class="message" id="plannerMessage"></div>
+      </section>
+    </section>
+
+    <section id="group" class="view">
+      <section class="grid">
+        <div>
+          <section class="panel" aria-labelledby="group-title">
+            <h2 id="group-title">그룹 출석</h2>
+            <div class="form-grid">
+              <label>
+                출석 날짜
+                <input id="groupDate" type="date">
+              </label>
+              <label>
+                멤버 이름
+                <input id="memberNameInput" type="text" placeholder="이름 입력">
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="btn" id="addMemberBtn" type="button">멤버 추가</button>
+              <button class="btn secondary" id="clearOldBtn" type="button">식단만 초기화</button>
+            </div>
+            <div class="row-note" id="groupStatus" style="margin-top: 10px;"></div>
+            <div id="groupMembers" class="record-list"></div>
+          </section>
+        </div>
+        <aside>
+          <section class="panel" aria-labelledby="ranking-title">
+            <h2 id="ranking-title">주간 랭킹</h2>
+            <div id="rankingList" class="ranking"></div>
+          </section>
+        </aside>
+      </section>
+    </section>
+
+    <section id="architecture" class="view">
+      <section class="panel" aria-labelledby="architecture-title">
+        <h2 id="architecture-title">Architecture</h2>
+        <div class="uml-tree">
+          <div class="class-card active">
+            <button type="button" data-class="fitness">
+              <div class="class-title">
+                <span>FitnessModule</span>
+                <span class="tag">base</span>
+              </div>
+              <p>모든 기능 객체가 공유하는 name, run() 인터페이스를 정의합니다.</p>
+            </button>
+          </div>
+          <div class="arrow">extends</div>
+          <div class="children">
+            <div class="class-card">
+              <button type="button" data-class="goal">
+                <div class="class-title">
+                  <span>GoalPlan</span>
+                  <span class="tag">abstract</span>
+                </div>
+                <p>목표 칼로리와 탄단지 계산 규칙의 부모 클래스입니다.</p>
+              </button>
+            </div>
+            <div class="class-card">
+              <button type="button" data-class="meal">
+                <div class="class-title">
+                  <span>MealRecord</span>
+                  <span class="tag">override</span>
+                </div>
+                <p>식단 배열을 합산하고 목표 대비 남은 섭취량을 계산합니다.</p>
+              </button>
+            </div>
+            <div class="class-card">
+              <button type="button" data-class="attendance">
+                <div class="class-title">
+                  <span>AttendanceRecord</span>
+                  <span class="tag">override</span>
+                </div>
+                <p>날짜별 운동 출석을 저장하고 주간 랭킹을 갱신합니다.</p>
+              </button>
+            </div>
+          </div>
+          <div class="arrow">GoalPlan variants</div>
+          <div class="children">
+            <div class="class-card">
+              <button type="button" data-class="cut">
+                <div class="class-title">
+                  <span>CuttingPlan</span>
+                  <span class="tag">override</span>
+                </div>
+                <p>감량 목적에 맞춰 유지 칼로리보다 낮은 목표를 계산합니다.</p>
+              </button>
+            </div>
+            <div class="class-card">
+              <button type="button" data-class="leanBulk">
+                <div class="class-title">
+                  <span>LeanBulkPlan</span>
+                  <span class="tag">override</span>
+                </div>
+                <p>린매스업 목적에 맞춰 단백질과 적당한 칼로리 흑자를 계산합니다.</p>
+              </button>
+            </div>
+            <div class="class-card">
+              <button type="button" data-class="bulk">
+                <div class="class-title">
+                  <span>MuscleGainPlan</span>
+                  <span class="tag">override</span>
+                </div>
+                <p>근육량 증가 목적에 맞춰 더 높은 탄수화물 비율을 계산합니다.</p>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="architectureOutput" class="message">
+          <strong>FitnessModule.run()</strong><br>
+          앱 기능은 같은 run() 인터페이스를 사용하지만, 객체 종류에 따라 계산 결과가 달라집니다.
+        </div>
+        <pre class="code-box"><code>const plan = createGoalPlan(goalMode);
+const target = plan.run(profile);
+
+const mealRecord = new MealRecord(todayMeals);
+const mealSummary = mealRecord.run(target);
+
+const attendance = new AttendanceRecord(members);
+const ranking = attendance.run(selectedDate);</code></pre>
+      </section>
+    </section>
+  </main>
 
   <script>
-    class FitnessRecord {
+    class FitnessModule {
       constructor(name) {
         this.name = name;
-        this.createdAt = new Date();
       }
 
       run() {
         return {
-          title: "FitnessRecord.run()",
-          body: "부모 클래스는 공통 인터페이스를 제공합니다. 실제 행동은 자식 클래스가 오버라이딩합니다."
+          title: "FitnessModule.run()",
+          body: "공통 실행 인터페이스입니다."
         };
       }
     }
 
-    class MealRecord extends FitnessRecord {
-      run() {
-        const totals = calculateTotals();
-        const goal = Number(goalCalories.value);
-        const remain = Math.max(goal - totals.calories, 0);
-        return {
-          title: "MealRecord.run()",
-          body: `식단 기록 객체는 총 ${Math.round(totals.calories)} kcal를 계산했습니다. 오늘은 약 ${Math.round(remain)} kcal를 더 먹을 수 있습니다.`
-        };
+    class GoalPlan extends FitnessModule {
+      constructor(name, label) {
+        super(name);
+        this.label = label;
+      }
+
+      calculateBase(profile) {
+        const bmr = profile.sex === "male"
+          ? 66.47 + (13.75 * profile.weight) + (5 * profile.height) - (6.76 * profile.age)
+          : 655.1 + (9.56 * profile.weight) + (1.85 * profile.height) - (4.68 * profile.age);
+        const tdee = bmr * profile.activity;
+        return { bmr, tdee };
+      }
+
+      macroTargets(calories, profile, proteinRatio, fatRatio) {
+        const protein = Math.round(profile.targetWeight * proteinRatio);
+        const fatCalories = calories * fatRatio;
+        const fat = Math.round(fatCalories / 9);
+        const carb = Math.max(Math.round((calories - (protein * 4) - (fat * 9)) / 4), 0);
+        return { calories: Math.round(calories), carb, protein, fat };
       }
     }
 
-    class WorkoutCheckIn extends FitnessRecord {
-      run() {
-        const me = members.find((member) => member.name === "나");
-        me.checked = true;
-        me.week += me.week < 7 ? 1 : 0;
-        renderGroup();
-        return {
-          title: "WorkoutCheckIn.run()",
-          body: `운동 출석 객체는 ${me.name}의 오늘 출석을 완료로 바꾸고, 주간 출석을 ${me.week}회로 갱신했습니다.`
-        };
+    class CuttingPlan extends GoalPlan {
+      constructor() {
+        super("cut", "커팅");
+      }
+
+      run(profile) {
+        const base = this.calculateBase(profile);
+        const target = Math.max(base.tdee - 450, base.bmr * 1.1);
+        return { ...base, ...this.macroTargets(target, profile, 2.2, 0.24), label: this.label };
       }
     }
 
-    class GroupChallenge extends FitnessRecord {
-      run() {
-        const leader = [...members].sort((a, b) => b.week - a.week)[0];
-        return {
-          title: "GroupChallenge.run()",
-          body: `그룹 챌린지 객체는 출석 횟수를 정렬했습니다. 현재 1위는 ${leader.name}, 주간 ${leader.week}회 출석입니다.`
-        };
+    class MaintainPlan extends GoalPlan {
+      constructor() {
+        super("maintain", "유지");
+      }
+
+      run(profile) {
+        const base = this.calculateBase(profile);
+        return { ...base, ...this.macroTargets(base.tdee, profile, 1.8, 0.25), label: this.label };
+      }
+    }
+
+    class LeanBulkPlan extends GoalPlan {
+      constructor() {
+        super("leanBulk", "린매스업");
+      }
+
+      run(profile) {
+        const base = this.calculateBase(profile);
+        const diffBonus = Math.max(profile.targetWeight - profile.weight, 0) * 35;
+        const target = base.tdee + 220 + Math.min(diffBonus, 180);
+        return { ...base, ...this.macroTargets(target, profile, 2.0, 0.25), label: this.label };
+      }
+    }
+
+    class MuscleGainPlan extends GoalPlan {
+      constructor() {
+        super("bulk", "근육량 증가");
+      }
+
+      run(profile) {
+        const base = this.calculateBase(profile);
+        const target = base.tdee + 420;
+        return { ...base, ...this.macroTargets(target, profile, 1.9, 0.23), label: this.label };
+      }
+    }
+
+    class MealRecord extends FitnessModule {
+      constructor(meals) {
+        super("meal");
+        this.meals = meals;
+      }
+
+      run(target) {
+        const totals = this.meals.reduce((sum, meal) => {
+          sum.calories += meal.calories;
+          sum.carb += meal.carb;
+          sum.protein += meal.protein;
+          sum.fat += meal.fat;
+          return sum;
+        }, { calories: 0, carb: 0, protein: 0, fat: 0 });
+        const remaining = target.calories - totals.calories;
+        return { ...totals, remaining };
+      }
+    }
+
+    class AttendanceRecord extends FitnessModule {
+      constructor(members) {
+        super("attendance");
+        this.members = members;
+      }
+
+      run(date) {
+        const weekDates = getWeekDates(date);
+        return [...this.members]
+          .map((member) => ({
+            ...member,
+            checked: member.attendance.includes(date),
+            week: member.attendance.filter((day) => weekDates.includes(day)).length,
+            streak: getStreak(member.attendance, date)
+          }))
+          .sort((a, b) => b.week - a.week || b.streak - a.streak || a.name.localeCompare(b.name));
       }
     }
 
     const foodDatabase = new Map([
-      ["닭가슴살", { calories: 165, carbs: 0, protein: 31, fat: 3.6 }],
-      ["현미밥", { calories: 145, carbs: 31, protein: 2.7, fat: 1 }],
-      ["계란", { calories: 155, carbs: 1.1, protein: 13, fat: 11 }],
-      ["바나나", { calories: 89, carbs: 23, protein: 1.1, fat: 0.3 }],
-      ["그릭요거트", { calories: 97, carbs: 3.6, protein: 10, fat: 5 }],
-      ["연어", { calories: 208, carbs: 0, protein: 20, fat: 13 }],
-      ["고구마", { calories: 86, carbs: 20, protein: 1.6, fat: 0.1 }],
-      ["두부", { calories: 76, carbs: 1.9, protein: 8, fat: 4.8 }]
+      ["닭가슴살", { calories: 165, carb: 0, protein: 31, fat: 3.6 }],
+      ["현미밥", { calories: 145, carb: 31, protein: 2.7, fat: 1 }],
+      ["계란", { calories: 155, carb: 1.1, protein: 13, fat: 11 }],
+      ["바나나", { calories: 89, carb: 23, protein: 1.1, fat: 0.3 }],
+      ["그릭요거트", { calories: 97, carb: 3.6, protein: 10, fat: 5 }],
+      ["연어", { calories: 208, carb: 0, protein: 20, fat: 13 }],
+      ["고구마", { calories: 86, carb: 20, protein: 1.6, fat: 0.1 }],
+      ["두부", { calories: 76, carb: 1.9, protein: 8, fat: 4.8 }],
+      ["오트밀", { calories: 389, carb: 66, protein: 16.9, fat: 6.9 }],
+      ["아보카도", { calories: 160, carb: 8.5, protein: 2, fat: 14.7 }]
     ]);
 
-    const meals = [];
-    const undoStack = [];
-    const members = [
-      { name: "나", checked: false, week: 3, streak: 2 },
-      { name: "민준", checked: true, week: 5, streak: 5 },
-      { name: "서연", checked: true, week: 4, streak: 3 },
-      { name: "지훈", checked: false, week: 2, streak: 1 },
-      { name: "하은", checked: true, week: 6, streak: 6 }
-    ];
-
-    const goalCalories = document.querySelector("#goalCalories");
-    const goalProtein = document.querySelector("#goalProtein");
-    const foodSelect = document.querySelector("#foodSelect");
-    const gramsInput = document.querySelector("#gramsInput");
-    const mealList = document.querySelector("#mealList");
-    const memberList = document.querySelector("#memberList");
-    const rankingList = document.querySelector("#rankingList");
-    const calorieMessage = document.querySelector("#calorieMessage");
-    const polyOutput = document.querySelector("#polymorphismOutput");
-
-    const polymorphicRecords = {
-      base: new FitnessRecord("공통 기록"),
-      meal: new MealRecord("식단 기록"),
-      workout: new WorkoutCheckIn("운동 출석"),
-      group: new GroupChallenge("그룹 챌린지")
-    };
-
-    function initFoodOptions() {
-      foodSelect.innerHTML = [...foodDatabase.keys()]
-        .map((name) => `<option value="${name}">${name}</option>`)
-        .join("");
+    function createId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
-    function calculateTotals() {
-      return meals.reduce((total, meal) => {
-        total.calories += meal.calories;
-        total.carbs += meal.carbs;
-        total.protein += meal.protein;
-        total.fat += meal.fat;
-        return total;
-      }, { calories: 0, carbs: 0, protein: 0, fat: 0 });
+    function safeJson(key, fallback) {
+      try {
+        const value = safeStorageGet(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage ? window.localStorage.getItem(key) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } catch (error) {
+        // Storage can be blocked in some file:// browser settings.
+      }
+    }
+
+    function normalizeMeals(meals) {
+      return Array.isArray(meals)
+        ? meals.map((meal) => ({
+          id: meal.id || createId(),
+          name: meal.name || "음식",
+          grams: Number(meal.grams) || 100,
+          calories: Number(meal.calories) || 0,
+          carb: Number(meal.carb ?? meal.carbs) || 0,
+          protein: Number(meal.protein) || 0,
+          fat: Number(meal.fat) || 0
+        }))
+        : [];
+    }
+
+    function normalizeMembers(members) {
+      const source = Array.isArray(members) && members.length > 0
+        ? members
+        : [{ name: "나", attendance: [] }];
+      return source.map((member) => ({
+        id: member.id || createId(),
+        name: member.name || "멤버",
+        attendance: Array.isArray(member.attendance) ? member.attendance : []
+      }));
+    }
+
+    const state = {
+      meals: normalizeMeals(safeJson("leanmate.meals", [])),
+      members: normalizeMembers(safeJson("leanmate.members", null)),
+      undoStack: [],
+      target: null,
+      remoteGroup: false,
+      profileComplete: safeStorageGet("leanmate.profileComplete") === "true"
+    };
+
+    const API_ENABLED = window.location.protocol !== "file:";
+
+    const elements = {
+      views: document.querySelectorAll(".view"),
+      navButtons: document.querySelectorAll("[data-view-target]"),
+      foodSearchInput: document.querySelector("#foodSearchInput"),
+      searchFoodBtn: document.querySelector("#searchFoodBtn"),
+      searchStatus: document.querySelector("#searchStatus"),
+      selectedFoodInfo: document.querySelector("#selectedFoodInfo"),
+      foodSelect: document.querySelector("#foodSelect"),
+      gramsInput: document.querySelector("#gramsInput"),
+      mealList: document.querySelector("#mealList"),
+      mealMessage: document.querySelector("#mealMessage"),
+      totalCalories: document.querySelector("#totalCalories"),
+      totalCarbs: document.querySelector("#totalCarbs"),
+      totalProtein: document.querySelector("#totalProtein"),
+      totalFat: document.querySelector("#totalFat"),
+      heroGoal: document.querySelector("#heroGoal"),
+      heroCalories: document.querySelector("#heroCalories"),
+      heroAttend: document.querySelector("#heroAttend"),
+      sexInput: document.querySelector("#sexInput"),
+      goalMode: document.querySelector("#goalMode"),
+      ageInput: document.querySelector("#ageInput"),
+      heightInput: document.querySelector("#heightInput"),
+      weightInput: document.querySelector("#weightInput"),
+      targetWeightInput: document.querySelector("#targetWeightInput"),
+      activityInput: document.querySelector("#activityInput"),
+      saveProfileBtn: document.querySelector("#saveProfileBtn"),
+      setupNotice: document.querySelector("#setupNotice"),
+      plannerBmr: document.querySelector("#plannerBmr"),
+      plannerTdee: document.querySelector("#plannerTdee"),
+      plannerTarget: document.querySelector("#plannerTarget"),
+      plannerDiff: document.querySelector("#plannerDiff"),
+      plannerMessage: document.querySelector("#plannerMessage"),
+      sideBmr: document.querySelector("#sideBmr"),
+      sideTdee: document.querySelector("#sideTdee"),
+      sideCalories: document.querySelector("#sideCalories"),
+      sideMode: document.querySelector("#sideMode"),
+      carbTarget: document.querySelector("#carbTarget"),
+      proteinTarget: document.querySelector("#proteinTarget"),
+      fatTarget: document.querySelector("#fatTarget"),
+      carbProgress: document.querySelector("#carbProgress"),
+      proteinProgress: document.querySelector("#proteinProgress"),
+      fatProgress: document.querySelector("#fatProgress"),
+      attendanceDate: document.querySelector("#attendanceDate"),
+      groupDate: document.querySelector("#groupDate"),
+      memberNameInput: document.querySelector("#memberNameInput"),
+      compactAttendance: document.querySelector("#compactAttendance"),
+      groupMembers: document.querySelector("#groupMembers"),
+      groupStatus: document.querySelector("#groupStatus"),
+      rankingList: document.querySelector("#rankingList"),
+      architectureOutput: document.querySelector("#architectureOutput")
+    };
+
+    function toDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function todayString() {
+      return toDateInputValue(new Date());
+    }
+
+    function save() {
+      safeStorageSet("leanmate.meals", JSON.stringify(state.meals));
+      if (!state.remoteGroup) {
+        safeStorageSet("leanmate.members", JSON.stringify(state.members));
+      }
+    }
+
+    async function apiRequest(path, options = {}) {
+      if (!API_ENABLED) {
+        throw new Error("API는 Vercel 배포 또는 vercel dev 환경에서 사용할 수 있습니다.");
+      }
+      const response = await fetch(`/api${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...options.headers
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "API 요청에 실패했습니다.");
+      }
+      return data;
+    }
+
+    function createGoalPlan(mode) {
+      const plans = {
+        cut: new CuttingPlan(),
+        maintain: new MaintainPlan(),
+        leanBulk: new LeanBulkPlan(),
+        bulk: new MuscleGainPlan()
+      };
+      return plans[mode] || plans.leanBulk;
+    }
+
+    function getProfile() {
+      return {
+        sex: elements.sexInput.value,
+        age: Number(elements.ageInput.value),
+        height: Number(elements.heightInput.value),
+        weight: Number(elements.weightInput.value),
+        targetWeight: Number(elements.targetWeightInput.value),
+        activity: Number(elements.activityInput.value)
+      };
+    }
+
+    function formatNumber(value) {
+      return Number.isFinite(value) ? Math.round(value).toLocaleString("ko-KR") : "0";
     }
 
     function formatGram(value) {
       return `${Math.round(value * 10) / 10} g`;
     }
 
-    function addMeal() {
-      const name = foodSelect.value;
-      const grams = Math.max(Number(gramsInput.value), 10);
+    function percent(current, target) {
+      if (!target) return 0;
+      return Math.min(Math.round((current / target) * 100), 100);
+    }
+
+    function dateFromInput(dateString) {
+      const [year, month, day] = dateString.split("-").map(Number);
+      return new Date(Date.UTC(year, month - 1, day));
+    }
+
+    function fromUtcDate(date) {
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function dateAdd(dateString, amount) {
+      const date = dateFromInput(dateString);
+      date.setUTCDate(date.getUTCDate() + amount);
+      return fromUtcDate(date);
+    }
+
+    function getWeekDates(dateString) {
+      const date = dateFromInput(dateString);
+      const day = date.getUTCDay() || 7;
+      const monday = new Date(date);
+      monday.setUTCDate(date.getUTCDate() - day + 1);
+      return Array.from({ length: 7 }, (_, index) => {
+        const item = new Date(monday);
+        item.setUTCDate(monday.getUTCDate() + index);
+        return fromUtcDate(item);
+      });
+    }
+
+    function getStreak(attendance, dateString) {
+      const dates = new Set(attendance);
+      let streak = 0;
+      let cursor = dateString;
+      while (dates.has(cursor)) {
+        streak += 1;
+        cursor = dateAdd(cursor, -1);
+      }
+      return streak;
+    }
+
+    function switchView(target) {
+      if (!state.profileComplete && target !== "planner" && target !== "architecture") {
+        target = "planner";
+        elements.setupNotice.textContent = "먼저 목표를 저장하면 식단과 그룹 메뉴가 열립니다.";
+      }
+      elements.views.forEach((view) => view.classList.toggle("active", view.id === target));
+      document.querySelectorAll(".tab-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.viewTarget === target);
+      });
+    }
+
+    function updateSetupState() {
+      document.body.classList.toggle("needs-setup", !state.profileComplete);
+      elements.setupNotice.textContent = state.profileComplete
+        ? "목표를 수정하면 오늘 식단 목표에도 바로 반영됩니다."
+        : "처음 시작할 때 목표를 먼저 저장하면 식단과 그룹 메뉴를 사용할 수 있습니다.";
+    }
+
+    function saveProfile() {
+      state.profileComplete = true;
+      safeStorageSet("leanmate.profileComplete", "true");
+      updateSetupState();
+      calculatePlan();
+      switchView("dashboard");
+    }
+
+    function calculatePlan() {
+      const profile = getProfile();
+      const plan = createGoalPlan(elements.goalMode.value);
+      state.target = plan.run(profile);
+      renderPlan(profile);
+      renderMeals();
+      renderAttendance();
+    }
+
+    function renderPlan(profile) {
+      const target = state.target;
+      const diff = profile.targetWeight - profile.weight;
+      elements.plannerBmr.textContent = `${formatNumber(target.bmr)} kcal`;
+      elements.plannerTdee.textContent = `${formatNumber(target.tdee)} kcal`;
+      elements.plannerTarget.textContent = `${formatNumber(target.calories)} kcal`;
+      elements.plannerDiff.textContent = `${diff > 0 ? "+" : ""}${Math.round(diff * 10) / 10} kg`;
+      elements.sideBmr.textContent = formatNumber(target.bmr);
+      elements.sideTdee.textContent = formatNumber(target.tdee);
+      elements.sideCalories.textContent = formatNumber(target.calories);
+      elements.sideMode.textContent = target.label;
+      elements.heroGoal.textContent = `${formatNumber(target.calories)} kcal`;
+      elements.carbTarget.textContent = `${target.carb} g`;
+      elements.proteinTarget.textContent = `${target.protein} g`;
+      elements.fatTarget.textContent = `${target.fat} g`;
+      elements.plannerMessage.innerHTML = `
+        <strong>${target.label} 플랜</strong><br>
+        하루 ${formatNumber(target.calories)} kcal 기준으로 탄수화물 ${target.carb}g,
+        단백질 ${target.protein}g, 지방 ${target.fat}g을 목표로 잡았습니다.
+      `;
+    }
+
+    function initFoodOptions() {
+      elements.foodSelect.innerHTML = [...foodDatabase.keys()]
+        .map((food) => `<option value="${food}">${food}</option>`)
+        .join("");
+      if (!elements.foodSelect.value) {
+        elements.foodSelect.value = [...foodDatabase.keys()][0];
+      }
+      renderSelectedFoodInfo();
+    }
+
+    function renderSelectedFoodInfo() {
+      const name = elements.foodSelect.value || [...foodDatabase.keys()][0];
       const nutrition = foodDatabase.get(name);
+      if (!nutrition) {
+        elements.selectedFoodInfo.textContent = "음식을 선택하면 100g 기준 영양정보가 표시됩니다.";
+        return;
+      }
+      elements.selectedFoodInfo.textContent =
+        `${name} 100g 기준: ${Math.round(nutrition.calories)} kcal · 탄 ${formatGram(nutrition.carb)} · 단 ${formatGram(nutrition.protein)} · 지 ${formatGram(nutrition.fat)}`;
+    }
+
+    function bindClick(selector, handler) {
+      const element = document.querySelector(selector);
+      if (!element) return;
+      element.addEventListener("click", (event) => {
+        event.preventDefault();
+        handler(event);
+      });
+    }
+
+    async function searchFoodNutrition() {
+      const query = elements.foodSearchInput.value.trim();
+      if (!query) {
+        elements.searchStatus.textContent = "검색할 메뉴명을 먼저 입력해 주세요.";
+        elements.foodSearchInput.focus();
+        return;
+      }
+
+      if (!API_ENABLED) {
+        elements.searchStatus.textContent =
+          "현재 file://로 열려 있어 검색 API를 사용할 수 없습니다. Vercel 배포 또는 vercel dev에서 동작합니다.";
+        return;
+      }
+
+      elements.searchFoodBtn.disabled = true;
+      elements.searchStatus.textContent = "영양정보를 검색하고 있습니다...";
+      try {
+        const data = await apiRequest("/nutrition-search", {
+          method: "POST",
+          body: JSON.stringify({ query })
+        });
+        const item = data.nutrition;
+        const name = item.name || query;
+        foodDatabase.set(name, {
+          calories: Number(item.calories) || 0,
+          carb: Number(item.carb) || 0,
+          protein: Number(item.protein) || 0,
+          fat: Number(item.fat) || 0
+        });
+        initFoodOptions();
+        elements.foodSelect.value = name;
+        renderSelectedFoodInfo();
+        elements.searchStatus.textContent =
+          `${name}을(를) 음식 목록에 추가했습니다. 기준: ${item.serving_description || "100g"}, 신뢰도: ${item.confidence || "unknown"}`;
+      } catch (error) {
+        elements.searchStatus.textContent =
+          `${error.message} 기본 음식 DB로 먼저 기록할 수 있습니다.`;
+      } finally {
+        elements.searchFoodBtn.disabled = false;
+      }
+    }
+
+    function addMeal() {
+      const name = elements.foodSelect.value || [...foodDatabase.keys()][0];
+      const grams = Math.max(Number(elements.gramsInput.value), 10);
+      const nutrition = foodDatabase.get(name);
+      if (!nutrition) {
+        elements.mealMessage.innerHTML = "<strong>음식 선택 오류</strong><br>음식 목록에서 다시 선택해 주세요.";
+        return;
+      }
       const ratio = grams / 100;
       const meal = {
+        id: createId(),
         name,
         grams,
         calories: nutrition.calories * ratio,
-        carbs: nutrition.carbs * ratio,
+        carb: nutrition.carb * ratio,
         protein: nutrition.protein * ratio,
         fat: nutrition.fat * ratio
       };
-      meals.push(meal);
-      undoStack.push(meal);
+      state.meals.push(meal);
+      state.undoStack.push(meal);
+      save();
       renderMeals();
-      showPolymorphism("meal");
+      elements.searchStatus.textContent = `${name} ${grams}g을(를) 오늘 식단에 추가했습니다.`;
     }
 
     function undoMeal() {
-      if (undoStack.length === 0) return;
-      const last = undoStack.pop();
-      const index = meals.lastIndexOf(last);
-      if (index >= 0) meals.splice(index, 1);
+      const last = state.undoStack.pop();
+      if (!last) return;
+      state.meals = state.meals.filter((meal) => meal.id !== last.id);
+      save();
       renderMeals();
     }
 
     function resetMeals() {
-      meals.splice(0, meals.length);
-      undoStack.splice(0, undoStack.length);
+      state.meals = [];
+      state.undoStack = [];
+      save();
       renderMeals();
     }
 
     function renderMeals() {
-      const totals = calculateTotals();
-      const goal = Number(goalCalories.value);
-      const proteinGoal = Number(goalProtein.value);
-      const remain = goal - totals.calories;
-      const proteinRate = proteinGoal > 0 ? Math.min((totals.protein / proteinGoal) * 100, 999) : 0;
+      const target = state.target || createGoalPlan("leanBulk").run(getProfile());
+      const summary = new MealRecord(state.meals).run(target);
+      elements.totalCalories.textContent = `${formatNumber(summary.calories)} kcal`;
+      elements.totalCarbs.textContent = formatGram(summary.carb);
+      elements.totalProtein.textContent = formatGram(summary.protein);
+      elements.totalFat.textContent = formatGram(summary.fat);
+      elements.heroCalories.textContent = `${formatNumber(summary.calories)} kcal`;
+      elements.carbProgress.style.width = `${percent(summary.carb, target.carb)}%`;
+      elements.proteinProgress.style.width = `${percent(summary.protein, target.protein)}%`;
+      elements.fatProgress.style.width = `${percent(summary.fat, target.fat)}%`;
 
-      document.querySelector("#totalCalories").textContent = `${Math.round(totals.calories)} kcal`;
-      document.querySelector("#totalCarbs").textContent = formatGram(totals.carbs);
-      document.querySelector("#totalProtein").textContent = formatGram(totals.protein);
-      document.querySelector("#totalFat").textContent = formatGram(totals.fat);
-      document.querySelector("#heroCalories").textContent = `${Math.round(totals.calories)} kcal`;
-      document.querySelector("#heroRemain").textContent = `${Math.max(Math.round(remain), 0)} kcal`;
+      const remainText = summary.remaining >= 0
+        ? `오늘 ${formatNumber(summary.remaining)} kcal를 더 먹을 수 있습니다.`
+        : `오늘 목표보다 ${formatNumber(Math.abs(summary.remaining))} kcal 초과했습니다.`;
 
-      calorieMessage.innerHTML = `
-        <strong>오늘의 식단 분석</strong><br>
-        목표 ${goal} kcal 기준으로 ${remain >= 0 ? `앞으로 ${Math.round(remain)} kcal 더 먹을 수 있습니다.` : `${Math.abs(Math.round(remain))} kcal 초과했습니다.`}
-        단백질은 목표의 ${Math.round(proteinRate)}%를 채웠습니다.
+      elements.mealMessage.innerHTML = `
+        <strong>식단 진행률</strong><br>
+        ${remainText} 단백질은 ${percent(summary.protein, target.protein)}% 채웠습니다.
       `;
 
-      if (meals.length === 0) {
-        mealList.innerHTML = `<div class="meal-row"><div><strong>아직 기록된 식단이 없습니다.</strong><span class="row-note">음식을 추가하면 이곳에 표시됩니다.</span></div></div>`;
+      if (state.meals.length === 0) {
+        elements.mealList.innerHTML = `
+          <div class="record-row">
+            <div>
+              <strong>기록된 식단이 없습니다.</strong>
+              <span class="row-note">첫 식사를 추가해 보세요.</span>
+            </div>
+          </div>
+        `;
         return;
       }
 
-      mealList.innerHTML = meals.map((meal) => `
-        <div class="meal-row">
+      elements.mealList.innerHTML = state.meals.map((meal) => `
+        <div class="record-row">
           <div>
             <strong>${meal.name} ${meal.grams}g</strong>
-            <span class="row-note">탄 ${formatGram(meal.carbs)} · 단 ${formatGram(meal.protein)} · 지 ${formatGram(meal.fat)}</span>
+            <span class="row-note">탄 ${formatGram(meal.carb)} · 단 ${formatGram(meal.protein)} · 지 ${formatGram(meal.fat)}</span>
           </div>
-          <span class="status-pill done">${Math.round(meal.calories)} kcal</span>
+          <span class="pill done">${formatNumber(meal.calories)} kcal</span>
         </div>
       `).join("");
     }
 
-    function renderGroup() {
-      const attended = members.filter((member) => member.checked).length;
-      document.querySelector("#heroAttend").textContent = `${attended}/${members.length}`;
+    async function loadRemoteAttendance() {
+      if (!API_ENABLED) return;
+      const date = elements.groupDate.value || todayString();
+      try {
+        const data = await apiRequest(`/attendance?date=${encodeURIComponent(date)}`);
+        state.members = data.members;
+        state.remoteGroup = true;
+        renderAttendance();
+      } catch (error) {
+        state.remoteGroup = false;
+        renderAttendance();
+      }
+    }
 
-      memberList.innerHTML = members.map((member) => `
-        <div class="member-row">
+    async function addMember() {
+      const name = elements.memberNameInput.value.trim();
+      if (!name) {
+        elements.groupStatus.textContent = "추가할 멤버 이름을 입력해 주세요.";
+        elements.memberNameInput.focus();
+        return;
+      }
+      try {
+        if (API_ENABLED) {
+          await apiRequest("/members", {
+            method: "POST",
+            body: JSON.stringify({ name })
+          });
+          elements.memberNameInput.value = "";
+          elements.groupStatus.textContent = `${name}님을 그룹에 추가했습니다.`;
+          await loadRemoteAttendance();
+          return;
+        }
+      } catch (error) {
+        state.remoteGroup = false;
+        elements.groupStatus.textContent = `서버 저장에 실패해 이 브라우저에만 저장합니다. ${error.message}`;
+      }
+
+      state.members.push({ id: createId(), name, attendance: [] });
+      elements.memberNameInput.value = "";
+      save();
+      renderAttendance();
+      elements.groupStatus.textContent = `${name}님을 그룹에 추가했습니다.`;
+    }
+
+    async function toggleAttendance(memberId, date) {
+      try {
+        if (API_ENABLED && state.remoteGroup) {
+          const data = await apiRequest("/attendance", {
+            method: "POST",
+            body: JSON.stringify({ memberId, date })
+          });
+          state.members = data.members;
+          renderAttendance();
+          elements.groupStatus.textContent = "출석 기록을 서버에 저장했습니다.";
+          return;
+        }
+      } catch (error) {
+        state.remoteGroup = false;
+        elements.groupStatus.textContent = `서버 저장에 실패해 이 브라우저에만 저장합니다. ${error.message}`;
+      }
+
+      const member = state.members.find((item) => item.id === memberId);
+      if (!member) return;
+      if (member.attendance.includes(date)) {
+        member.attendance = member.attendance.filter((day) => day !== date);
+      } else {
+        member.attendance.push(date);
+        member.attendance.sort();
+      }
+      save();
+      renderAttendance();
+      elements.groupStatus.textContent = `${member.name}님의 ${date} 출석 기록을 변경했습니다.`;
+    }
+
+    function renderAttendance() {
+      const date = elements.groupDate.value || todayString();
+      elements.attendanceDate.value = date;
+      elements.groupDate.value = date;
+      const ranking = new AttendanceRecord(state.members).run(date);
+      const attended = ranking.filter((member) => member.checked).length;
+      elements.heroAttend.textContent = `${attended}/${ranking.length}`;
+
+      const rows = ranking.map((member) => `
+        <div class="record-row">
           <div>
             <strong>${member.name}</strong>
-            <span class="row-note">주간 ${member.week}회 · 연속 ${member.streak}일</span>
+            <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일</span>
           </div>
-          <span class="status-pill ${member.checked ? "done" : ""}">${member.checked ? "완료" : "미완료"}</span>
+          <div class="attendance-actions">
+            <span class="pill ${member.checked ? "done" : ""}">${member.checked ? "출석" : "미출석"}</span>
+            <button class="mini-btn ${member.checked ? "active" : ""}" type="button" data-attendance-id="${member.id}">${member.checked ? "취소" : "체크"}</button>
+          </div>
         </div>
       `).join("");
 
-      const ranking = [...members].sort((a, b) => b.week - a.week || b.streak - a.streak);
-      rankingList.innerHTML = ranking.map((member, index) => `
+      elements.groupMembers.innerHTML = rows;
+      elements.compactAttendance.innerHTML = rows;
+      elements.rankingList.innerHTML = ranking.map((member, index) => `
         <div class="rank-row">
           <div class="rank-no">${index + 1}</div>
           <div>
             <strong>${member.name}</strong>
-            <div class="row-note">연속 ${member.streak}일 출석</div>
+            <div class="row-note">${member.checked ? "오늘 출석" : "오늘 미출석"} · 연속 ${member.streak}일</div>
           </div>
           <strong>${member.week}회</strong>
         </div>
       `).join("");
-    }
 
-    function shuffleGroup() {
-      members.forEach((member) => {
-        if (member.name === "나") return;
-        member.checked = Math.random() > 0.35;
-        member.week = Math.min(7, Math.max(1, member.week + (Math.random() > 0.5 ? 1 : -1)));
-        member.streak = member.checked ? Math.min(7, member.streak + 1) : 0;
+      document.querySelectorAll("[data-attendance-id]").forEach((button) => {
+        button.addEventListener("click", () => toggleAttendance(button.dataset.attendanceId, date));
       });
-      renderGroup();
-      showPolymorphism("group");
     }
 
-    function showPolymorphism(type) {
-      const result = polymorphicRecords[type].run();
+    function showArchitecture(type) {
+      const profile = getProfile();
+      const target = createGoalPlan(elements.goalMode.value).run(profile);
+      const mealSummary = new MealRecord(state.meals).run(target);
+      const attendance = new AttendanceRecord(state.members).run(elements.groupDate.value || todayString());
+      const samples = {
+        fitness: {
+          title: "FitnessModule.run()",
+          body: "부모 클래스는 공통 인터페이스를 제공하고, 실제 계산은 하위 클래스가 담당합니다."
+        },
+        goal: {
+          title: "GoalPlan.run(profile)",
+          body: `현재 선택된 ${target.label} 플랜은 ${formatNumber(target.calories)} kcal 목표를 계산했습니다.`
+        },
+        meal: {
+          title: "MealRecord.run(target)",
+          body: `식단 기록은 오늘 ${formatNumber(mealSummary.calories)} kcal를 합산하고 남은 섭취량을 계산했습니다.`
+        },
+        attendance: {
+          title: "AttendanceRecord.run(date)",
+          body: `출석 기록은 ${attendance.length}명의 날짜별 기록을 바탕으로 주간 랭킹을 정렬했습니다.`
+        },
+        cut: {
+          title: "CuttingPlan.run(profile)",
+          body: `커팅 플랜 예시는 ${formatNumber(new CuttingPlan().run(profile).calories)} kcal를 반환합니다.`
+        },
+        leanBulk: {
+          title: "LeanBulkPlan.run(profile)",
+          body: `린매스업 플랜 예시는 ${formatNumber(new LeanBulkPlan().run(profile).calories)} kcal를 반환합니다.`
+        },
+        bulk: {
+          title: "MuscleGainPlan.run(profile)",
+          body: `근육량 증가 플랜 예시는 ${formatNumber(new MuscleGainPlan().run(profile).calories)} kcal를 반환합니다.`
+        }
+      };
+      const result = samples[type] || samples.fitness;
       document.querySelectorAll(".class-card").forEach((card) => card.classList.remove("active"));
-      const activeButton = document.querySelector(`[data-class="${type}"]`);
-      activeButton.closest(".class-card").classList.add("active");
-      polyOutput.innerHTML = `<strong>${result.title}</strong><br>${result.body}`;
+      const button = document.querySelector(`[data-class="${type}"]`);
+      if (button) button.closest(".class-card").classList.add("active");
+      elements.architectureOutput.innerHTML = `<strong>${result.title}</strong><br>${result.body}`;
     }
 
-    document.querySelector("#addMealBtn").addEventListener("click", addMeal);
-    document.querySelector("#undoMealBtn").addEventListener("click", undoMeal);
-    document.querySelector("#resetMealBtn").addEventListener("click", resetMeals);
-    document.querySelector("#checkInBtn").addEventListener("click", () => showPolymorphism("workout"));
-    document.querySelector("#shuffleBtn").addEventListener("click", shuffleGroup);
-    goalCalories.addEventListener("input", renderMeals);
-    goalProtein.addEventListener("input", renderMeals);
-    document.querySelectorAll("[data-class]").forEach((button) => {
-      button.addEventListener("click", () => showPolymorphism(button.dataset.class));
+    elements.navButtons.forEach((button) => {
+      button.addEventListener("click", () => switchView(button.dataset.viewTarget));
     });
 
+    bindClick("#searchFoodBtn", searchFoodNutrition);
+    elements.foodSearchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") searchFoodNutrition();
+    });
+    elements.foodSelect.addEventListener("change", renderSelectedFoodInfo);
+    bindClick("#saveProfileBtn", saveProfile);
+    bindClick("#addMealBtn", addMeal);
+    bindClick("#undoMealBtn", undoMeal);
+    bindClick("#resetMealBtn", resetMeals);
+    bindClick("#clearOldBtn", resetMeals);
+    bindClick("#addMemberBtn", addMember);
+    elements.memberNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addMember();
+    });
+    elements.groupDate.addEventListener("change", loadRemoteAttendance);
+    elements.attendanceDate.addEventListener("change", () => {
+      elements.groupDate.value = elements.attendanceDate.value;
+      loadRemoteAttendance();
+    });
+    document.querySelectorAll("[data-class]").forEach((button) => {
+      button.addEventListener("click", () => showArchitecture(button.dataset.class));
+    });
+    [
+      elements.sexInput,
+      elements.goalMode,
+      elements.ageInput,
+      elements.heightInput,
+      elements.weightInput,
+      elements.targetWeightInput,
+      elements.activityInput
+    ].forEach((input) => input.addEventListener("input", calculatePlan));
+
     initFoodOptions();
-    renderMeals();
-    renderGroup();
+    elements.groupDate.value = todayString();
+    elements.attendanceDate.value = todayString();
+    calculatePlan();
+    updateSetupState();
+    switchView(state.profileComplete ? "dashboard" : "planner");
+    loadRemoteAttendance();
+    elements.searchStatus.textContent = API_ENABLED
+      ? "메뉴명을 검색해 음식 목록에 추가할 수 있습니다."
+      : "현재 파일로 열려 있어 검색 API는 비활성화되어 있습니다. 기본 음식 선택과 식단 추가는 사용할 수 있습니다.";
   </script>
 </body>
 </html>
