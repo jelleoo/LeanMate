@@ -705,7 +705,7 @@
               </label>
               <label>
                 검색 결과 반영
-                <button class="btn secondary" id="searchFoodBtn" type="button">영양정보 검색</button>
+                <button class="btn secondary" id="searchFoodBtn" type="button">검색</button>
               </label>
               <label>
                 음식
@@ -724,6 +724,40 @@
             <div class="row-note" id="selectedFoodInfo" style="margin-top: 10px;"></div>
             <div class="row-note" id="searchStatus" style="margin-top: 10px;">
               기본 음식 DB를 사용하거나, 배포 환경에서 메뉴명을 검색해 영양정보를 추가할 수 있습니다.
+            </div>
+            <div class="panel" id="foodReviewPanel" style="display: none; margin-top: 14px; box-shadow: none;">
+              <h2 style="font-size: 18px; margin-bottom: 10px;">검색 결과 확인</h2>
+              <div class="form-grid">
+                <label>
+                  음식명
+                  <input id="reviewFoodName" type="text">
+                </label>
+                <label>
+                  기준
+                  <input id="reviewServing" type="text">
+                </label>
+                <label>
+                  kcal
+                  <input id="reviewCalories" type="number" min="0" step="1">
+                </label>
+                <label>
+                  탄수화물 g
+                  <input id="reviewCarb" type="number" min="0" step="0.1">
+                </label>
+                <label>
+                  단백질 g
+                  <input id="reviewProtein" type="number" min="0" step="0.1">
+                </label>
+                <label>
+                  지방 g
+                  <input id="reviewFat" type="number" min="0" step="0.1">
+                </label>
+              </div>
+              <div class="row-note" id="reviewSourceNote"></div>
+              <div class="button-row" style="margin-top: 12px;">
+                <button class="btn" id="addReviewedFoodBtn" type="button">검토한 음식 추가</button>
+                <button class="btn secondary" id="cancelReviewedFoodBtn" type="button">취소</button>
+              </div>
             </div>
 
             <div class="summary-grid" aria-label="오늘 섭취 요약">
@@ -1211,6 +1245,14 @@ const ranking = attendance.run(selectedDate);</code></pre>
       searchFoodBtn: document.querySelector("#searchFoodBtn"),
       searchStatus: document.querySelector("#searchStatus"),
       selectedFoodInfo: document.querySelector("#selectedFoodInfo"),
+      foodReviewPanel: document.querySelector("#foodReviewPanel"),
+      reviewFoodName: document.querySelector("#reviewFoodName"),
+      reviewServing: document.querySelector("#reviewServing"),
+      reviewCalories: document.querySelector("#reviewCalories"),
+      reviewCarb: document.querySelector("#reviewCarb"),
+      reviewProtein: document.querySelector("#reviewProtein"),
+      reviewFat: document.querySelector("#reviewFat"),
+      reviewSourceNote: document.querySelector("#reviewSourceNote"),
       foodSelect: document.querySelector("#foodSelect"),
       gramsInput: document.querySelector("#gramsInput"),
       mealList: document.querySelector("#mealList"),
@@ -1450,8 +1492,24 @@ const ranking = attendance.run(selectedDate);</code></pre>
       if (!element) return;
       element.addEventListener("click", (event) => {
         event.preventDefault();
-        handler(event);
+        return handler(event);
       });
+    }
+
+    function showFoodReview(food) {
+      elements.reviewFoodName.value = food.name || "";
+      elements.reviewServing.value = food.servingDescription || "100g";
+      elements.reviewCalories.value = Math.round(Number(food.calories) || 0);
+      elements.reviewCarb.value = Math.round((Number(food.carb) || 0) * 10) / 10;
+      elements.reviewProtein.value = Math.round((Number(food.protein) || 0) * 10) / 10;
+      elements.reviewFat.value = Math.round((Number(food.fat) || 0) * 10) / 10;
+      elements.reviewSourceNote.textContent =
+        `검색 신뢰도: ${food.confidence || "unknown"} · ${food.sourceNote || "사용자가 확인 후 수정해 주세요."}`;
+      elements.foodReviewPanel.style.display = "block";
+    }
+
+    function hideFoodReview() {
+      elements.foodReviewPanel.style.display = "none";
     }
 
     async function searchFoodNutrition() {
@@ -1464,36 +1522,49 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
       if (!API_ENABLED) {
         elements.searchStatus.textContent =
-          "현재 file://로 열려 있어 검색 API를 사용할 수 없습니다. Vercel 배포 또는 vercel dev에서 동작합니다.";
+          "현재 file://로 열려 있어 /api/food-search를 호출할 수 없습니다. Vercel 배포 또는 vercel dev에서 동작합니다.";
         return;
       }
 
       elements.searchFoodBtn.disabled = true;
       elements.searchStatus.textContent = "영양정보를 검색하고 있습니다...";
       try {
-        const data = await apiRequest("/nutrition-search", {
+        const data = await apiRequest("/food-search", {
           method: "POST",
           body: JSON.stringify({ query })
         });
-        const item = data.nutrition;
-        const name = item.name || query;
-        foodDatabase.set(name, {
-          calories: Number(item.calories) || 0,
-          carb: Number(item.carb) || 0,
-          protein: Number(item.protein) || 0,
-          fat: Number(item.fat) || 0
-        });
-        initFoodOptions();
-        elements.foodSelect.value = name;
-        renderSelectedFoodInfo();
-        elements.searchStatus.textContent =
-          `${name}을(를) 음식 목록에 추가했습니다. 기준: ${item.serving_description || "100g"}, 신뢰도: ${item.confidence || "unknown"}`;
+        showFoodReview(data.food);
+        elements.searchStatus.textContent = "검색 결과를 확인하고 필요하면 수정한 뒤 식단에 추가하세요.";
       } catch (error) {
         elements.searchStatus.textContent =
           `${error.message} 기본 음식 DB로 먼저 기록할 수 있습니다.`;
       } finally {
         elements.searchFoodBtn.disabled = false;
       }
+    }
+
+    function addReviewedFoodToMeal() {
+      const name = elements.reviewFoodName.value.trim();
+      if (!name) {
+        elements.searchStatus.textContent = "음식명을 확인해 주세요.";
+        elements.reviewFoodName.focus();
+        return;
+      }
+      const nutrition = {
+        calories: Number(elements.reviewCalories.value) || 0,
+        carb: Number(elements.reviewCarb.value) || 0,
+        protein: Number(elements.reviewProtein.value) || 0,
+        fat: Number(elements.reviewFat.value) || 0
+      };
+      foodDatabase.set(name, nutrition);
+      initFoodOptions();
+      elements.foodSelect.value = name;
+      elements.gramsInput.value = 100;
+      renderSelectedFoodInfo();
+      addMeal();
+      hideFoodReview();
+      elements.searchStatus.textContent =
+        `${name}을(를) 확인한 값으로 오늘 식단에 추가했습니다. 기준: ${elements.reviewServing.value || "100g"}`;
     }
 
     function addMeal() {
@@ -1740,6 +1811,8 @@ const ranking = attendance.run(selectedDate);</code></pre>
     });
 
     bindClick("#searchFoodBtn", searchFoodNutrition);
+    bindClick("#addReviewedFoodBtn", addReviewedFoodToMeal);
+    bindClick("#cancelReviewedFoodBtn", hideFoodReview);
     elements.foodSearchInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") searchFoodNutrition();
     });
@@ -1779,7 +1852,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
     switchView(state.profileComplete ? "dashboard" : "planner");
     loadRemoteAttendance();
     elements.searchStatus.textContent = API_ENABLED
-      ? "메뉴명을 검색해 음식 목록에 추가할 수 있습니다."
+      ? "메뉴명을 검색한 뒤 영양정보를 확인/수정하고 식단에 추가할 수 있습니다."
       : "현재 파일로 열려 있어 검색 API는 비활성화되어 있습니다. 기본 음식 선택과 식단 추가는 사용할 수 있습니다.";
   </script>
 </body>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "vercel dev",
-    "check": "node -c api/members.js && node -c api/attendance.js && node -c api/nutrition-search.js"
+    "check": "node -c api/members.js && node -c api/attendance.js && node -c api/food-search.js"
   },
   "devDependencies": {
     "vercel": "^34.3.0"

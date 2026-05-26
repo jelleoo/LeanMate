@@ -21,9 +21,22 @@ function parseJson(text) {
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end < start) {
-    throw new Error("The model did not return JSON.");
+    throw new Error("The search result was not valid JSON.");
   }
   return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+function normalizeFood(raw, query) {
+  return {
+    name: String(raw.name || query),
+    servingDescription: String(raw.servingDescription || raw.serving_description || "100g"),
+    calories: Number(raw.calories) || 0,
+    carb: Number(raw.carb ?? raw.carbohydrate_g) || 0,
+    protein: Number(raw.protein ?? raw.protein_g) || 0,
+    fat: Number(raw.fat ?? raw.fat_g) || 0,
+    confidence: String(raw.confidence || "medium"),
+    sourceNote: String(raw.sourceNote || raw.source_note || "")
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -64,15 +77,15 @@ module.exports = async function handler(req, res) {
           {
             role: "system",
             content:
-              "You estimate nutrition facts for a food query. Prefer Korean public or manufacturer nutrition sources when available. Return only compact JSON."
+              "You estimate nutrition facts for food search. Prefer Korean official, manufacturer, or restaurant nutrition pages when available. Return only JSON."
           },
           {
             role: "user",
             content:
-              `음식명: ${query}\n` +
-              "100g 기준 kcal, carbohydrate_g, protein_g, fat_g를 추정해줘. " +
-              "음식명이 1인분 기준으로 더 자연스러우면 serving_description도 적어줘. " +
-              "JSON schema: {\"name\":\"\",\"calories\":0,\"carb\":0,\"protein\":0,\"fat\":0,\"serving_description\":\"100g\",\"confidence\":\"low|medium|high\",\"source_note\":\"\"}"
+              `Food query: ${query}\n` +
+              "Return one best match. Use 100g as the default serving when possible. " +
+              "If the food is normally sold by serving, describe that serving clearly. " +
+              "Schema: {\"name\":\"\",\"servingDescription\":\"100g\",\"calories\":0,\"carb\":0,\"protein\":0,\"fat\":0,\"confidence\":\"low|medium|high\",\"sourceNote\":\"short source summary\"}"
           }
         ]
       })
@@ -85,8 +98,8 @@ module.exports = async function handler(req, res) {
     }
 
     const text = data.output_text || extractText(data.output);
-    const nutrition = parseJson(text);
-    json(res, 200, { nutrition });
+    const food = normalizeFood(parseJson(text), query);
+    json(res, 200, { food });
   } catch (error) {
     json(res, 500, { error: error.message });
   }
