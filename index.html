@@ -505,6 +505,83 @@
       justify-content: flex-end;
     }
 
+    .streak-hero {
+      border: 1px solid #c7e8d4;
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--mint);
+      margin: 12px 0;
+    }
+
+    .streak-hero strong {
+      display: block;
+      font-size: 24px;
+      color: var(--green-dark);
+    }
+
+    .heatmap {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .week-strip {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .day-cell,
+    .month-cell {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #e6ebe4;
+    }
+
+    .day-cell {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 6px 4px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .day-cell.done,
+    .month-cell.done {
+      border-color: #8ccaa2;
+      background: var(--green);
+      color: white;
+    }
+
+    .day-cell.today {
+      box-shadow: 0 0 0 3px rgba(47, 125, 87, 0.16);
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .month-cell {
+      aspect-ratio: 1;
+      min-width: 0;
+    }
+
+    .motivation {
+      border-radius: 8px;
+      padding: 12px;
+      color: #7d4f08;
+      background: var(--amber-soft);
+      border: 1px solid #f2d49c;
+      font-weight: 800;
+      margin-top: 12px;
+    }
+
     .mini-btn {
       min-height: 34px;
       border-radius: 8px;
@@ -647,7 +724,8 @@
       .summary-grid,
       .oop-summary,
       .metrics,
-      .bar-row {
+      .bar-row,
+      .week-strip {
         grid-template-columns: 1fr;
       }
 
@@ -853,6 +931,12 @@
               날짜
               <input id="attendanceDate" type="date">
             </label>
+            <div id="streakHero" class="streak-hero"></div>
+            <div id="motivationMessage" class="motivation"></div>
+            <div class="heatmap">
+              <strong>최근 7일 운동 기록</strong>
+              <div id="weekHeatmap" class="week-strip"></div>
+            </div>
             <div id="compactAttendance" class="record-list"></div>
           </section>
         </aside>
@@ -951,6 +1035,10 @@
               <button class="btn secondary" id="clearOldBtn" type="button">식단만 초기화</button>
             </div>
             <div class="row-note" id="groupStatus" style="margin-top: 10px;"></div>
+            <div class="heatmap">
+              <strong>월간 운동 잔디</strong>
+              <div id="monthHeatmap" class="month-grid"></div>
+            </div>
             <div id="groupMembers" class="record-list"></div>
           </section>
         </div>
@@ -1340,6 +1428,10 @@ const ranking = attendance.run(selectedDate);</code></pre>
       attendanceDate: document.querySelector("#attendanceDate"),
       groupDate: document.querySelector("#groupDate"),
       memberNameInput: document.querySelector("#memberNameInput"),
+      streakHero: document.querySelector("#streakHero"),
+      motivationMessage: document.querySelector("#motivationMessage"),
+      weekHeatmap: document.querySelector("#weekHeatmap"),
+      monthHeatmap: document.querySelector("#monthHeatmap"),
       compactAttendance: document.querySelector("#compactAttendance"),
       groupMembers: document.querySelector("#groupMembers"),
       groupStatus: document.querySelector("#groupStatus"),
@@ -1456,6 +1548,57 @@ const ranking = attendance.run(selectedDate);</code></pre>
         cursor = dateAdd(cursor, -1);
       }
       return streak;
+    }
+
+    function getRecentDates(dateString, count) {
+      return Array.from({ length: count }, (_, index) => dateAdd(dateString, index - count + 1));
+    }
+
+    function getMonthDates(dateString) {
+      const [year, month] = dateString.split("-").map(Number);
+      const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      return Array.from({ length: lastDay }, (_, index) => {
+        const day = String(index + 1).padStart(2, "0");
+        return `${year}-${String(month).padStart(2, "0")}-${day}`;
+      });
+    }
+
+    function getCurrentMember() {
+      return state.members.find((member) => member.name === "나") || state.members[0];
+    }
+
+    function getMotivation(me, ranking, date) {
+      if (!me) return "그룹에 나를 추가하고 오늘의 초록불을 켜보세요.";
+      const checked = me.attendance.includes(date) || me.checked;
+      const friends = ranking.filter((member) => member.id !== me.id);
+      const friendsChecked = friends.filter((member) => member.checked).length;
+      const bestFriendWeek = friends.reduce((best, member) => Math.max(best, member.week || 0), 0);
+      if (checked) return "오늘의 초록불이 켜졌습니다. 내일도 스트릭을 이어가세요.";
+      if ((me.streak || 0) > 0) return "오늘 빠지면 연속 기록이 끊겨요. 지금 운동하고 스트릭을 이어가세요.";
+      if (friendsChecked > 0) return "아직 오늘의 운동 출석이 비어 있어요. 친구들은 이미 초록불을 켰습니다.";
+      if ((me.week || 0) < bestFriendWeek) return "친구들의 운동 기록이 하나씩 채워지고 있어요. 오늘의 초록불, 놓치지 마세요.";
+      return "오늘 운동, 아직 당신만 회색입니다. 초록불 하나 켜러 가볼까요?";
+    }
+
+    function renderWeekHeatmap(me, date) {
+      const attendance = new Set(me?.attendance || []);
+      elements.weekHeatmap.innerHTML = getRecentDates(date, 7).map((day) => {
+        const label = day.slice(5).replace("-", "/");
+        const done = attendance.has(day);
+        return `
+          <div class="day-cell ${done ? "done" : ""} ${day === date ? "today" : ""}" title="${day}">
+            <span>${label}</span>
+            <span>${done ? "초록불" : "회색"}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMonthHeatmap(me, date) {
+      const attendance = new Set(me?.attendance || []);
+      elements.monthHeatmap.innerHTML = getMonthDates(date).map((day) => `
+        <div class="month-cell ${attendance.has(day) ? "done" : ""}" title="${day}"></div>
+      `).join("");
     }
 
     function switchView(target) {
@@ -1779,14 +1922,24 @@ const ranking = attendance.run(selectedDate);</code></pre>
       elements.attendanceDate.value = date;
       elements.groupDate.value = date;
       const ranking = new AttendanceRecord(state.members).run(date);
+      const currentMember = getCurrentMember();
+      const currentSummary = ranking.find((member) => member.id === currentMember?.id) || ranking[0];
       const attended = ranking.filter((member) => member.checked).length;
       elements.heroAttend.textContent = `${attended}/${ranking.length}`;
+      elements.streakHero.innerHTML = `
+        <span class="row-note">나의 운동 스트릭</span>
+        <strong>${currentSummary?.streak ? `🔥 ${currentSummary.streak}일 연속 운동 중` : "오늘 초록불을 기다리는 중"}</strong>
+        <span class="row-note">이번 주 ${currentSummary?.week || 0}회 출석 · 오늘 ${currentSummary?.checked ? "출석 완료" : "아직 미출석"}</span>
+      `;
+      elements.motivationMessage.textContent = getMotivation(currentSummary, ranking, date);
+      renderWeekHeatmap(currentSummary, date);
+      renderMonthHeatmap(currentSummary, date);
 
       const rows = ranking.map((member) => `
         <div class="record-row">
           <div>
             <strong>${member.name}</strong>
-            <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일</span>
+            <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일 · ${member.checked ? "오늘 초록불" : "오늘 회색"}</span>
           </div>
           <div class="attendance-actions">
             <span class="pill ${member.checked ? "done" : ""}">${member.checked ? "출석" : "미출석"}</span>
