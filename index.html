@@ -394,15 +394,23 @@
       display: block;
     }
 
-    .favorite-action {
+    .star-button {
+      width: 36px;
+      height: 36px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 999px;
       background: #fff;
-      color: var(--green-dark);
+      color: #a7ada8;
       cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
       font-weight: 900;
-      padding: 8px 10px;
-      white-space: nowrap;
+    }
+
+    .star-button.active {
+      color: #f4b400;
+      border-color: #f2d49c;
+      background: #fff8df;
     }
 
     .record-list,
@@ -422,8 +430,39 @@
       gap: 12px;
     }
 
+    .record-row.selectable,
+    .rank-row.selectable {
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .record-row.selected,
+    .rank-row.selected {
+      border-color: var(--green);
+      background: #f3fbf6;
+    }
+
     .record-row strong {
       display: block;
+    }
+
+    .delete-meal-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .delete-meal-btn:hover {
+      color: var(--red);
+      border-color: #efc2bf;
+      background: #fff7f6;
     }
 
     .row-note {
@@ -782,7 +821,7 @@
         <div class="brand-mark">LM</div>
         <div>
           LeanMate
-          <div class="row-note">식단은 목표에 맞게, 운동은 함께 꾸준하게</div>
+          <div class="row-note">더 이상 외로운 다이어트는 그만, LeanMate와 함께해요</div>
         </div>
       </div>
       <nav class="tabs" aria-label="주요 메뉴">
@@ -852,10 +891,10 @@
             <div class="form-grid">
               <label>
                 메뉴 검색
-                <input id="foodSearchInput" type="text" placeholder="예: 서브웨이 로스트치킨 15cm">
+                <input id="foodSearchInput" type="text" placeholder="예: 닭가슴살, 쌀밥 등">
               </label>
               <label>
-                검색 결과 반영
+                검색
                 <button class="btn secondary" id="searchFoodBtn" type="button">검색</button>
               </label>
               <label>
@@ -869,16 +908,11 @@
             </div>
             <div class="button-row">
               <button class="btn" id="addMealBtn" type="button">추가</button>
-              <button class="btn secondary" id="undoMealBtn" type="button">되돌리기</button>
               <button class="btn secondary" id="resetMealBtn" type="button">초기화</button>
             </div>
             <div class="row-note" id="selectedFoodInfo" style="margin-top: 10px;"></div>
             <div class="row-note" id="searchStatus" style="margin-top: 10px;">
               기본 음식 DB에서 먼저 검색하고, 없으면 직접 입력으로 기록할 수 있습니다.
-            </div>
-            <div style="margin-top: 14px;">
-              <strong>자주 먹는 음식</strong>
-              <div class="favorite-food-list" id="favoriteFoodList"></div>
             </div>
             <div style="margin-top: 14px;">
               <strong>검색 후보</strong>
@@ -915,7 +949,7 @@
               <div class="row-note" id="reviewSourceNote"></div>
               <div class="button-row" style="margin-top: 12px;">
                 <button class="btn" id="addReviewedFoodBtn" type="button">검토한 음식 추가</button>
-                <button class="btn secondary" id="favoriteReviewBtn" type="button">즐겨찾기 추가</button>
+                <button class="star-button" id="favoriteReviewBtn" type="button" aria-label="즐겨찾기 추가" title="즐겨찾기 추가">☆</button>
                 <button class="btn secondary" id="cancelReviewedFoodBtn" type="button">취소</button>
               </div>
             </div>
@@ -943,6 +977,11 @@
               목표 정보를 입력하면 남은 칼로리와 탄단지 진행률이 표시됩니다.
             </div>
             <div id="mealList" class="record-list" aria-live="polite"></div>
+          </section>
+          <section class="panel" aria-labelledby="favorite-title" style="margin-top: 24px;">
+            <h2 id="favorite-title">즐겨찾기</h2>
+            <p class="panel-note">자주 기록하는 음식은 별표로 저장해두고 빠르게 불러올 수 있습니다.</p>
+            <div class="favorite-food-list" id="favoriteFoodList"></div>
           </section>
         </div>
 
@@ -1033,11 +1072,11 @@
             </select>
           </label>
           <label>
-            목표 속도
+            기간
             <select id="goalSpeed">
-              <option value="slow">천천히</option>
-              <option value="normal" selected>보통</option>
-              <option value="fast">빠르게</option>
+              <option value="fast">4주</option>
+              <option value="normal" selected>8주</option>
+              <option value="slow">12주</option>
             </select>
           </label>
           <label>
@@ -1111,14 +1150,6 @@
               <button class="btn" id="addMemberBtn" type="button">멤버 추가</button>
             </div>
             <div class="row-note" id="groupStatus" style="margin-top: 10px;"></div>
-            <div class="heatmap">
-              <strong>이번 달 초록불 기록</strong>
-              <div id="monthHeatmap" class="month-grid"></div>
-              <div class="heatmap-legend">
-                <span><span class="legend-dot done"></span>운동 완료</span>
-                <span><span class="legend-dot"></span>미기록</span>
-              </div>
-            </div>
             <div id="groupMembers" class="record-list"></div>
           </section>
         </div>
@@ -1126,6 +1157,17 @@
           <section class="panel" aria-labelledby="ranking-title">
             <h2 id="ranking-title">주간 랭킹</h2>
             <div id="rankingList" class="ranking"></div>
+          </section>
+          <section class="panel" aria-labelledby="selectedMonthTitle" style="margin-top: 24px;">
+            <h2 id="selectedMonthTitle">나의 이번 달 초록불 기록</h2>
+            <p class="panel-note">그룹원 카드를 클릭하면 해당 사용자의 기록을 볼 수 있습니다.</p>
+            <div class="heatmap">
+              <div id="monthHeatmap" class="month-grid"></div>
+              <div class="heatmap-legend">
+                <span><span class="legend-dot done"></span>운동 완료</span>
+                <span><span class="legend-dot"></span>미기록</span>
+              </div>
+            </div>
           </section>
         </aside>
       </section>
@@ -1514,6 +1556,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       customFoods: normalizeCustomFoods(safeJson("leanmate.customFoods", {})),
       favoriteFoods: normalizeFavoriteFoods(safeJson("leanmate.favoriteFoods", [])),
       foodCandidates: [],
+      selectedMemberId: safeStorageGet("leanmate.selectedMemberId") || null,
       undoStack: [],
       target: null,
       remoteGroup: false,
@@ -1587,6 +1630,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       motivationMessage: document.querySelector("#motivationMessage"),
       weekHeatmap: document.querySelector("#weekHeatmap"),
       monthHeatmap: document.querySelector("#monthHeatmap"),
+      selectedMonthTitle: document.querySelector("#selectedMonthTitle"),
       compactAttendance: document.querySelector("#compactAttendance"),
       groupMembers: document.querySelector("#groupMembers"),
       groupStatus: document.querySelector("#groupStatus"),
@@ -1730,6 +1774,22 @@ const ranking = attendance.run(selectedDate);</code></pre>
       return state.members.find((member) => member.name === "나") || state.members[0];
     }
 
+    function getSelectedMember(ranking) {
+      if (!ranking.length) return null;
+      const currentMember = getCurrentMember();
+      if (!state.selectedMemberId || !ranking.some((member) => member.id === state.selectedMemberId)) {
+        state.selectedMemberId = currentMember?.id || ranking[0].id;
+      }
+      return ranking.find((member) => member.id === state.selectedMemberId) || ranking[0];
+    }
+
+    function selectMember(memberId) {
+      if (!state.members.some((member) => member.id === memberId)) return;
+      state.selectedMemberId = memberId;
+      safeStorageSet("leanmate.selectedMemberId", memberId);
+      renderAttendance();
+    }
+
     function getMotivation(me, ranking, date) {
       if (!me) return "그룹에 나를 추가하고 오늘의 초록불을 켜보세요.";
       const checked = me.attendance.includes(date) || me.checked;
@@ -1800,7 +1860,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
     function renderPlan(profile) {
       const target = state.target;
-      const speedLabels = { slow: "천천히", normal: "보통", fast: "빠르게" };
+      const periodLabels = { slow: "12주", normal: "8주", fast: "4주" };
       const adjustmentLabel = target.adjustment > 0 ? `+${formatNumber(target.adjustment)}` : formatNumber(target.adjustment);
       elements.plannerBmr.textContent = `${formatNumber(target.bmr)} kcal`;
       elements.plannerTdee.textContent = `${formatNumber(target.tdee)} kcal`;
@@ -1816,9 +1876,9 @@ const ranking = attendance.run(selectedDate);</code></pre>
       elements.fatTarget.textContent = `${target.fat} g`;
       elements.goalSpeed.disabled = elements.goalMode.value === "maintain";
       elements.goalDescription.innerHTML = `
-        <strong>${target.label} · ${elements.goalMode.value === "maintain" ? "속도 조정 없음" : speedLabels[profile.speed]}</strong><br>
+        <strong>${target.label} · ${elements.goalMode.value === "maintain" ? "기간 조정 없음" : periodLabels[profile.speed]}</strong><br>
         ${getGoalDescription(elements.goalMode.value)}
-        ${elements.goalMode.value === "maintain" ? " 유지 목표에서는 속도 조정이 적용되지 않습니다." : ""}
+        ${elements.goalMode.value === "maintain" ? " 유지 목표에서는 기간에 따른 칼로리 조정이 적용되지 않습니다." : ""}
       `;
       elements.plannerMessage.innerHTML = `
         <strong>${target.label} 플랜</strong><br>
@@ -1901,8 +1961,8 @@ const ranking = attendance.run(selectedDate);</code></pre>
               <strong>${escapeHtml(food.name)}</strong>
               <span class="row-note">${food.source} · ${nutritionLine(food)}</span>
             </button>
-            <button class="favorite-action" type="button" data-favorite-toggle="${escapeHtml(food.name)}">
-              ${isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+            <button class="star-button ${isFavorite ? "active" : ""}" type="button" data-favorite-toggle="${escapeHtml(food.name)}" aria-label="${isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}" title="${isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}">
+              ${isFavorite ? "★" : "☆"}
             </button>
           </div>
         `;
@@ -1959,7 +2019,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
           <div class="favorite-food">
             <div>
               <strong>즐겨찾기한 음식이 없습니다.</strong>
-              <span class="row-note">자주 먹는 음식을 즐겨찾기에 추가해보세요.</span>
+              <span class="row-note">자주 기록하는 음식을 즐겨찾기에 추가해보세요.</span>
             </div>
           </div>
         `;
@@ -1971,7 +2031,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
             <strong>${escapeHtml(food.name)}</strong>
             <span class="row-note">${nutritionLine(food)}</span>
           </button>
-          <button class="favorite-action" type="button" data-favorite-toggle="${escapeHtml(food.name)}">즐겨찾기 해제</button>
+          <button class="star-button active" type="button" data-favorite-toggle="${escapeHtml(food.name)}" aria-label="즐겨찾기 해제" title="즐겨찾기 해제">★</button>
         </div>
       `).join("");
     }
@@ -2012,7 +2072,10 @@ const ranking = attendance.run(selectedDate);</code></pre>
     function updateFavoriteReviewButton() {
       const name = elements.reviewFoodName.value.trim();
       const isFavorite = state.favoriteFoods.includes(name);
-      elements.favoriteReviewBtn.textContent = isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가";
+      elements.favoriteReviewBtn.textContent = isFavorite ? "★" : "☆";
+      elements.favoriteReviewBtn.classList.toggle("active", isFavorite);
+      elements.favoriteReviewBtn.setAttribute("aria-label", isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가");
+      elements.favoriteReviewBtn.title = isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가";
       elements.favoriteReviewBtn.disabled = !name;
     }
 
@@ -2109,6 +2172,17 @@ const ranking = attendance.run(selectedDate);</code></pre>
       renderMeals();
     }
 
+    function deleteMeal(mealId) {
+      const target = state.meals.find((meal) => meal.id === mealId);
+      state.meals = state.meals.filter((meal) => meal.id !== mealId);
+      state.undoStack = state.undoStack.filter((meal) => meal.id !== mealId);
+      save();
+      renderMeals();
+      if (target) {
+        elements.searchStatus.textContent = `${target.name} 항목을 삭제했습니다.`;
+      }
+    }
+
     function resetMeals() {
       state.meals = [];
       state.undoStack = [];
@@ -2155,7 +2229,10 @@ const ranking = attendance.run(selectedDate);</code></pre>
             <strong>${meal.name} ${meal.grams}g</strong>
             <span class="row-note">탄 ${formatGram(meal.carb)} · 단 ${formatGram(meal.protein)} · 지 ${formatGram(meal.fat)}</span>
           </div>
-          <span class="pill done">${formatNumber(meal.calories)} kcal</span>
+          <div class="attendance-actions">
+            <span class="pill done">${formatNumber(meal.calories)} kcal</span>
+            <button class="delete-meal-btn" type="button" data-delete-meal="${meal.id}" aria-label="${meal.name} 삭제" title="삭제">×</button>
+          </div>
         </div>
       `).join("");
     }
@@ -2244,6 +2321,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const ranking = new AttendanceRecord(state.members).run(date);
       const currentMember = getCurrentMember();
       const currentSummary = ranking.find((member) => member.id === currentMember?.id) || ranking[0];
+      const selectedSummary = getSelectedMember(ranking);
       const attended = ranking.filter((member) => member.checked).length;
       elements.heroAttend.textContent = `${attended}/${ranking.length}`;
       elements.streakHero.innerHTML = `
@@ -2253,17 +2331,21 @@ const ranking = attendance.run(selectedDate);</code></pre>
       `;
       elements.motivationMessage.textContent = getMotivation(currentSummary, ranking, date);
       renderWeekHeatmap(currentSummary, date);
-      renderMonthHeatmap(currentSummary, date);
+      renderMonthHeatmap(selectedSummary, date);
+      elements.selectedMonthTitle.textContent =
+        selectedSummary?.id === currentSummary?.id
+          ? "나의 이번 달 초록불 기록"
+          : `${selectedSummary?.name || "멤버"}님의 이번 달 초록불 기록`;
 
       const rows = ranking.map((member) => `
-        <div class="record-row">
+        <div class="record-row selectable ${member.id === selectedSummary?.id ? "selected" : ""}" data-select-member="${member.id}">
           <div>
             <strong>${member.name}</strong>
             <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일 · ${member.checked ? "오늘 초록불" : "오늘 미기록"}</span>
           </div>
           <div class="attendance-actions">
             <span class="pill ${member.checked ? "done" : ""}">${member.checked ? "출석" : "미출석"}</span>
-            <button class="mini-btn ${member.checked ? "active" : ""}" type="button" data-attendance-id="${member.id}">${member.checked ? "취소" : "체크"}</button>
+            ${member.id === currentSummary?.id ? `<button class="mini-btn ${member.checked ? "active" : ""}" type="button" data-attendance-id="${member.id}">${member.checked ? "취소" : "체크"}</button>` : ""}
           </div>
         </div>
       `).join("");
@@ -2271,7 +2353,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       elements.groupMembers.innerHTML = rows;
       elements.compactAttendance.innerHTML = rows;
       elements.rankingList.innerHTML = ranking.map((member, index) => `
-        <div class="rank-row">
+        <div class="rank-row selectable ${member.id === selectedSummary?.id ? "selected" : ""}" data-select-member="${member.id}">
           <div class="rank-no">${index + 1}</div>
           <div>
             <strong>${member.name}</strong>
@@ -2283,6 +2365,12 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
       document.querySelectorAll("[data-attendance-id]").forEach((button) => {
         button.addEventListener("click", () => toggleAttendance(button.dataset.attendanceId, date));
+      });
+      document.querySelectorAll("[data-select-member]").forEach((row) => {
+        row.addEventListener("click", (event) => {
+          if (event.target.closest("[data-attendance-id]")) return;
+          selectMember(row.dataset.selectMember);
+        });
       });
     }
 
@@ -2373,8 +2461,11 @@ const ranking = attendance.run(selectedDate);</code></pre>
     elements.reviewFoodName.addEventListener("input", updateFavoriteReviewButton);
     bindClick("#saveProfileBtn", saveProfile);
     bindClick("#addMealBtn", addMeal);
-    bindClick("#undoMealBtn", undoMeal);
     bindClick("#resetMealBtn", resetMeals);
+    elements.mealList.addEventListener("click", (event) => {
+      const deleteButton = event.target.closest("[data-delete-meal]");
+      if (deleteButton) deleteMeal(deleteButton.dataset.deleteMeal);
+    });
     bindClick("#addMemberBtn", addMember);
     elements.memberNameInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") addMember();
