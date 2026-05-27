@@ -1,23 +1,25 @@
 # LeanMate
 
-LeanMate는 목표 체중에 맞춰 하루 섭취 칼로리와 탄단지를 계산하고, 식단 기록과 그룹 운동 출석을 함께 관리하는 웹앱입니다.
+LeanMate는 감량, 유지, 린매스업 목표에 맞춰 하루 섭취 칼로리와 탄단지를 계산하고, 식단 기록과 그룹 운동 출석을 함께 관리하는 웹앱입니다.
 
 ## 주요 기능
 
-- 성별, 나이, 키, 현재 체중, 목표 체중 기반 기초대사량 계산
-- 커팅, 유지, 린매스업, 근육량 증가 목적별 하루 권장 칼로리 계산
+- 성별, 나이, 키, 현재 체중 기반 기초대사량 계산
+- 감량, 유지, 린매스업 목적별 하루 권장 칼로리 계산
+- 천천히, 보통, 빠르게 목표 속도에 따른 칼로리 조정
 - 탄수화물, 단백질, 지방 목표 g 계산
 - 음식별 kcal와 탄단지 기록
 - 목표 대비 남은 kcal와 탄단지 진행률 표시
 - 날짜별 그룹 운동 출석 기록
-- 최근 7일 운동 스트릭과 월간 운동 잔디 시각화
+- 최근 7일 초록불 기록과 이번 달 초록불 기록 시각화
+- 선택 날짜별 독립 출석 체크
 - 주간 출석 횟수와 연속 출석일 기반 랭킹
 - 친구 출석 상태와 내 스트릭을 비교한 동기부여 문구
 - `/api/food-search` 서버리스 함수 기반 음식 영양정보 검색
 - 검색 결과 확인/수정 후 식단 추가
 - OOP 상속 구조를 별도 Architecture 메뉴에서 시각화
 
-## BMR 공식
+## 기초대사량 공식
 
 ```text
 남자: 66.47 + (13.75 * 체중) + (5 * 키) - (6.76 * 나이)
@@ -31,15 +33,14 @@ FitnessModule
 ├─ GoalPlan
 │  ├─ CuttingPlan
 │  ├─ MaintainPlan
-│  ├─ LeanBulkPlan
-│  └─ MuscleGainPlan
+│  └─ LeanBulkPlan
 ├─ MealRecord
 └─ AttendanceRecord
 ```
 
 - `FitnessModule`: 공통 `run()` 인터페이스를 정의하는 부모 클래스
 - `GoalPlan`: 목표 계산 클래스들의 부모 클래스
-- `CuttingPlan`, `MaintainPlan`, `LeanBulkPlan`, `MuscleGainPlan`: 목적별 칼로리와 탄단지 계산을 오버라이딩
+- `CuttingPlan`, `MaintainPlan`, `LeanBulkPlan`: 목적별 칼로리와 탄단지 계산을 오버라이딩
 - `MealRecord`: 식단 배열을 합산해 오늘 섭취량을 계산
 - `AttendanceRecord`: 날짜별 출석 기록을 바탕으로 주간 랭킹 계산
 

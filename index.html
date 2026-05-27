@@ -176,65 +176,19 @@
       overflow: hidden;
     }
 
-    .plate-scene {
-      height: 185px;
-      position: relative;
+    .hero-illustration {
+      min-height: 185px;
       border: 1px solid #d8e4da;
       border-radius: 8px;
-      background:
-        radial-gradient(circle at 50% 48%, #fff 0 38%, #d9e7dc 39% 41%, transparent 42%),
-        linear-gradient(135deg, #eef7f1, #f9f4df);
+      background: linear-gradient(135deg, #f8fbf7, #edf6f0);
+      display: grid;
+      place-items: center;
     }
 
-    .food-dot {
-      position: absolute;
-      border-radius: 999px;
-      box-shadow: inset 0 -8px 16px rgba(23, 33, 28, 0.08);
-    }
-
-    .greens {
-      width: 70px;
-      height: 70px;
-      left: 24%;
-      top: 24%;
-      background: #5da66f;
-    }
-
-    .rice {
-      width: 80px;
-      height: 58px;
-      left: 34%;
-      top: 41%;
-      background: #f8f5e8;
-      border: 1px solid #e7dfbf;
-    }
-
-    .protein {
-      width: 96px;
-      height: 50px;
-      right: 24%;
-      top: 32%;
-      background: #d7a46b;
-      transform: rotate(-16deg);
-    }
-
-    .egg {
-      width: 48px;
-      height: 48px;
-      right: 32%;
-      bottom: 23%;
-      background: #fff8d7;
-    }
-
-    .egg::after {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      left: 14px;
-      top: 14px;
-      background: #f0ba38;
+    .hero-illustration svg {
+      width: min(320px, 92%);
+      height: auto;
+      display: block;
     }
 
     .metrics {
@@ -265,6 +219,14 @@
       display: block;
       margin-top: 4px;
       font-size: 20px;
+    }
+
+    .summary-help {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .grid {
@@ -560,16 +522,48 @@
       box-shadow: 0 0 0 3px rgba(47, 125, 87, 0.16);
     }
 
+    .day-cell.selected,
+    .month-cell.selected {
+      border-color: var(--green-dark);
+      box-shadow: 0 0 0 3px rgba(47, 125, 87, 0.18);
+    }
+
     .month-grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, 18px);
       gap: 5px;
       margin-top: 12px;
     }
 
     .month-cell {
-      aspect-ratio: 1;
-      min-width: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      display: inline-block;
+      vertical-align: -2px;
+      margin-right: 5px;
+      background: #e6ebe4;
+    }
+
+    .legend-dot.done {
+      background: var(--green);
+      border-color: #8ccaa2;
     }
 
     .motivation {
@@ -742,7 +736,7 @@
         <div class="brand-mark">LM</div>
         <div>
           LeanMate
-          <div class="row-note">Nutrition and gym accountability</div>
+          <div class="row-note">식단은 목표에 맞게, 운동은 함께 꾸준하게</div>
         </div>
       </div>
       <nav class="tabs" aria-label="주요 메뉴">
@@ -759,9 +753,9 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">LeanMate</p>
-          <h1>목표 체중에 맞춰 하루 식단과 운동 출석을 관리하세요.</h1>
+          <h1>목표에 맞춘 식단과 운동 출석을 함께 관리하세요.</h1>
           <p>
-            기초대사량과 목표 체중을 바탕으로 하루 섭취 칼로리와 탄단지를 계산하고,
+            기초대사량과 활동량을 바탕으로 하루 섭취 칼로리와 탄단지를 계산하고,
             실제로 먹은 식단과 그룹 운동 출석을 함께 기록합니다.
           </p>
           <div class="button-row" style="margin-top: 20px;">
@@ -770,11 +764,23 @@
           </div>
         </div>
         <aside class="hero-panel" aria-label="오늘 요약">
-          <div class="plate-scene">
-            <div class="food-dot greens"></div>
-            <div class="food-dot rice"></div>
-            <div class="food-dot protein"></div>
-            <div class="food-dot egg"></div>
+          <div class="hero-illustration" aria-hidden="true">
+            <svg viewBox="0 0 360 210" role="img">
+              <rect x="30" y="34" width="132" height="142" rx="12" fill="#ffffff" stroke="#d6e2d7" stroke-width="3"/>
+              <rect x="48" y="54" width="92" height="12" rx="6" fill="#dff2e6"/>
+              <rect x="48" y="78" width="70" height="10" rx="5" fill="#e9eee7"/>
+              <circle cx="82" cy="124" r="32" fill="#f8f5e8" stroke="#d9e2d7" stroke-width="3"/>
+              <path d="M68 123l10 10 22-25" fill="none" stroke="#2f7d57" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="205" y="58" width="38" height="94" rx="18" fill="#2f7d57"/>
+              <rect x="250" y="58" width="38" height="94" rx="18" fill="#2f7d57"/>
+              <rect x="232" y="94" width="30" height="22" rx="8" fill="#1f5f40"/>
+              <rect x="180" y="84" width="30" height="42" rx="12" fill="#dff2e6" stroke="#91c9a4" stroke-width="3"/>
+              <rect x="288" y="84" width="30" height="42" rx="12" fill="#dff2e6" stroke="#91c9a4" stroke-width="3"/>
+              <rect x="190" y="164" width="116" height="16" rx="8" fill="#fff0d1"/>
+              <circle cx="216" cy="172" r="5" fill="#b67815"/>
+              <circle cx="244" cy="172" r="5" fill="#b67815"/>
+              <circle cx="272" cy="172" r="5" fill="#b67815"/>
+            </svg>
           </div>
           <div class="metrics">
             <div class="metric">
@@ -889,21 +895,25 @@
           <section class="panel" aria-labelledby="today-plan-title">
             <h2 id="today-plan-title">오늘 목표</h2>
             <div class="summary-grid">
-              <div class="summary-cell">
-                <span>BMR</span>
+              <div class="summary-cell" title="아무것도 하지 않아도 몸이 쓰는 에너지">
+                <span>기초대사량</span>
                 <strong id="sideBmr">0</strong>
+                <small class="summary-help">아무것도 하지 않아도 몸이 쓰는 에너지</small>
               </div>
-              <div class="summary-cell">
-                <span>TDEE</span>
+              <div class="summary-cell" title="현재 체중을 유지하는 데 필요한 하루 칼로리">
+                <span>유지 칼로리</span>
                 <strong id="sideTdee">0</strong>
+                <small class="summary-help">현재 체중을 유지하는 데 필요한 하루 칼로리</small>
               </div>
-              <div class="summary-cell">
-                <span>권장 kcal</span>
+              <div class="summary-cell" title="목표에 맞춰 조정된 하루 섭취 칼로리">
+                <span>오늘 목표</span>
                 <strong id="sideCalories">0</strong>
+                <small class="summary-help">목표에 맞춰 조정된 하루 섭취 칼로리</small>
               </div>
-              <div class="summary-cell">
-                <span>목표</span>
+              <div class="summary-cell" title="감량, 유지, 린매스업 중 현재 선택한 목표">
+                <span>목표 유형</span>
                 <strong id="sideMode">-</strong>
+                <small class="summary-help">감량, 유지, 린매스업 중 현재 선택한 목표</small>
               </div>
             </div>
             <div class="macro-bars">
@@ -934,8 +944,12 @@
             <div id="streakHero" class="streak-hero"></div>
             <div id="motivationMessage" class="motivation"></div>
             <div class="heatmap">
-              <strong>최근 7일 운동 기록</strong>
+              <strong>최근 7일 초록불 기록</strong>
               <div id="weekHeatmap" class="week-strip"></div>
+              <div class="heatmap-legend">
+                <span><span class="legend-dot done"></span>운동 완료</span>
+                <span><span class="legend-dot"></span>미기록</span>
+              </div>
             </div>
             <div id="compactAttendance" class="record-list"></div>
           </section>
@@ -958,10 +972,17 @@
           <label>
             목적
             <select id="goalMode">
-              <option value="cut">커팅</option>
+              <option value="cut">감량</option>
               <option value="maintain">유지</option>
               <option value="leanBulk" selected>린매스업</option>
-              <option value="bulk">근육량 증가</option>
+            </select>
+          </label>
+          <label>
+            목표 속도
+            <select id="goalSpeed">
+              <option value="slow">천천히</option>
+              <option value="normal" selected>보통</option>
+              <option value="fast">빠르게</option>
             </select>
           </label>
           <label>
@@ -977,10 +998,6 @@
             <input id="weightInput" type="number" value="70" min="35" max="180" step="0.1">
           </label>
           <label>
-            목표 체중 kg
-            <input id="targetWeightInput" type="number" value="73" min="35" max="180" step="0.1">
-          </label>
-          <label>
             활동량
             <select id="activityInput">
               <option value="1.2">거의 운동 안 함</option>
@@ -990,25 +1007,30 @@
             </select>
           </label>
         </div>
+        <div class="message" id="goalDescription"></div>
         <div class="button-row">
           <button class="btn" id="saveProfileBtn" type="button">목표 저장하고 식단 시작</button>
         </div>
         <div class="summary-grid">
-          <div class="summary-cell">
+          <div class="summary-cell" title="아무것도 하지 않아도 몸이 쓰는 에너지">
             <span>기초대사량</span>
             <strong id="plannerBmr">0 kcal</strong>
+            <small class="summary-help">아무것도 하지 않아도 몸이 쓰는 에너지</small>
           </div>
-          <div class="summary-cell">
+          <div class="summary-cell" title="현재 체중을 유지하는 데 필요한 하루 칼로리">
             <span>유지 칼로리</span>
             <strong id="plannerTdee">0 kcal</strong>
+            <small class="summary-help">현재 체중을 유지하는 데 필요한 하루 칼로리</small>
           </div>
-          <div class="summary-cell">
-            <span>하루 목표</span>
+          <div class="summary-cell" title="목표에 맞춰 조정된 하루 섭취 칼로리">
+            <span>오늘 목표</span>
             <strong id="plannerTarget">0 kcal</strong>
+            <small class="summary-help">목표에 맞춰 조정된 하루 섭취 칼로리</small>
           </div>
-          <div class="summary-cell">
-            <span>체중 차이</span>
-            <strong id="plannerDiff">0 kg</strong>
+          <div class="summary-cell" title="선택한 목표와 속도에 따라 적용된 칼로리 조정값">
+            <span>조정 칼로리</span>
+            <strong id="plannerAdjustment">0 kcal</strong>
+            <small class="summary-help">목표와 속도에 따라 유지 칼로리에 더하거나 뺀 값</small>
           </div>
         </div>
         <div class="message" id="plannerMessage"></div>
@@ -1032,12 +1054,15 @@
             </div>
             <div class="button-row">
               <button class="btn" id="addMemberBtn" type="button">멤버 추가</button>
-              <button class="btn secondary" id="clearOldBtn" type="button">식단만 초기화</button>
             </div>
             <div class="row-note" id="groupStatus" style="margin-top: 10px;"></div>
             <div class="heatmap">
-              <strong>월간 운동 잔디</strong>
+              <strong>이번 달 초록불 기록</strong>
               <div id="monthHeatmap" class="month-grid"></div>
+              <div class="heatmap-legend">
+                <span><span class="legend-dot done"></span>운동 완료</span>
+                <span><span class="legend-dot"></span>미기록</span>
+              </div>
             </div>
             <div id="groupMembers" class="record-list"></div>
           </section>
@@ -1120,7 +1145,7 @@
                   <span>CuttingPlan</span>
                   <span class="tag">override</span>
                 </div>
-                <p>run(profile)을 오버라이딩해 커팅용 목표 칼로리와 탄단지를 계산합니다.</p>
+                <p>run(profile)을 오버라이딩해 감량용 목표 칼로리와 탄단지를 계산합니다.</p>
               </button>
             </div>
             <div class="class-card">
@@ -1139,15 +1164,6 @@
                   <span class="tag">override</span>
                 </div>
                 <p>run(profile)을 오버라이딩해 린매스업용 칼로리 흑자와 단백질 목표를 계산합니다.</p>
-              </button>
-            </div>
-            <div class="class-card">
-              <button type="button" data-class="bulk">
-                <div class="class-title">
-                  <span>MuscleGainPlan</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(profile)을 오버라이딩해 근육량 증가용 칼로리와 탄단지 목표를 계산합니다.</p>
               </button>
             </div>
           </div>
@@ -1197,24 +1213,32 @@ const ranking = attendance.run(selectedDate);</code></pre>
         return { bmr, tdee };
       }
 
-      macroTargets(calories, profile, proteinRatio, fatRatio) {
-        const protein = Math.round(profile.targetWeight * proteinRatio);
-        const fatCalories = calories * fatRatio;
+      adjustment(profile, table) {
+        return table[profile.speed] ?? table.normal;
+      }
+
+      macroTargets(calories, profile, proteinPerKg) {
+        const roundedCalories = Math.round(calories);
+        const protein = Math.round(profile.weight * proteinPerKg);
+        const proteinCalories = protein * 4;
+        const fatCalories = roundedCalories * 0.25;
         const fat = Math.round(fatCalories / 9);
-        const carb = Math.max(Math.round((calories - (protein * 4) - (fat * 9)) / 4), 0);
-        return { calories: Math.round(calories), carb, protein, fat };
+        const carbCalories = roundedCalories - proteinCalories - (fat * 9);
+        const carb = Math.max(Math.round(carbCalories / 4), 0);
+        return { calories: roundedCalories, carb, protein, fat };
       }
     }
 
     class CuttingPlan extends GoalPlan {
       constructor() {
-        super("cut", "커팅");
+        super("cut", "감량");
       }
 
       run(profile) {
         const base = this.calculateBase(profile);
-        const target = Math.max(base.tdee - 450, base.bmr * 1.1);
-        return { ...base, ...this.macroTargets(target, profile, 2.2, 0.24), label: this.label };
+        const adjustment = this.adjustment(profile, { slow: -300, normal: -400, fast: -500 });
+        const target = base.tdee + adjustment;
+        return { ...base, ...this.macroTargets(target, profile, 2.0), adjustment, label: this.label };
       }
     }
 
@@ -1225,7 +1249,8 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
       run(profile) {
         const base = this.calculateBase(profile);
-        return { ...base, ...this.macroTargets(base.tdee, profile, 1.8, 0.25), label: this.label };
+        const adjustment = 0;
+        return { ...base, ...this.macroTargets(base.tdee, profile, 1.6), adjustment, label: this.label };
       }
     }
 
@@ -1236,21 +1261,9 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
       run(profile) {
         const base = this.calculateBase(profile);
-        const diffBonus = Math.max(profile.targetWeight - profile.weight, 0) * 35;
-        const target = base.tdee + 220 + Math.min(diffBonus, 180);
-        return { ...base, ...this.macroTargets(target, profile, 2.0, 0.25), label: this.label };
-      }
-    }
-
-    class MuscleGainPlan extends GoalPlan {
-      constructor() {
-        super("bulk", "근육량 증가");
-      }
-
-      run(profile) {
-        const base = this.calculateBase(profile);
-        const target = base.tdee + 420;
-        return { ...base, ...this.macroTargets(target, profile, 1.9, 0.23), label: this.label };
+        const adjustment = this.adjustment(profile, { slow: 150, normal: 200, fast: 300 });
+        const target = base.tdee + adjustment;
+        return { ...base, ...this.macroTargets(target, profile, 1.8), adjustment, label: this.label };
       }
     }
 
@@ -1403,17 +1416,18 @@ const ranking = attendance.run(selectedDate);</code></pre>
       heroAttend: document.querySelector("#heroAttend"),
       sexInput: document.querySelector("#sexInput"),
       goalMode: document.querySelector("#goalMode"),
+      goalSpeed: document.querySelector("#goalSpeed"),
+      goalDescription: document.querySelector("#goalDescription"),
       ageInput: document.querySelector("#ageInput"),
       heightInput: document.querySelector("#heightInput"),
       weightInput: document.querySelector("#weightInput"),
-      targetWeightInput: document.querySelector("#targetWeightInput"),
       activityInput: document.querySelector("#activityInput"),
       saveProfileBtn: document.querySelector("#saveProfileBtn"),
       setupNotice: document.querySelector("#setupNotice"),
       plannerBmr: document.querySelector("#plannerBmr"),
       plannerTdee: document.querySelector("#plannerTdee"),
       plannerTarget: document.querySelector("#plannerTarget"),
-      plannerDiff: document.querySelector("#plannerDiff"),
+      plannerAdjustment: document.querySelector("#plannerAdjustment"),
       plannerMessage: document.querySelector("#plannerMessage"),
       sideBmr: document.querySelector("#sideBmr"),
       sideTdee: document.querySelector("#sideTdee"),
@@ -1479,19 +1493,27 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const plans = {
         cut: new CuttingPlan(),
         maintain: new MaintainPlan(),
-        leanBulk: new LeanBulkPlan(),
-        bulk: new MuscleGainPlan()
+        leanBulk: new LeanBulkPlan()
       };
       return plans[mode] || plans.leanBulk;
+    }
+
+    function getGoalDescription(mode) {
+      const descriptions = {
+        cut: "체지방을 줄이기 위해 유지 칼로리보다 낮은 섭취량을 권장합니다.",
+        maintain: "현재 체중과 컨디션을 유지하기 위한 하루 섭취량을 계산합니다.",
+        leanBulk: "체지방 증가는 최소화하고 근육량을 천천히 늘릴 수 있도록 유지 칼로리보다 조금 높게 설정합니다."
+      };
+      return descriptions[mode] || descriptions.leanBulk;
     }
 
     function getProfile() {
       return {
         sex: elements.sexInput.value,
+        speed: elements.goalSpeed.value,
         age: Number(elements.ageInput.value),
         height: Number(elements.heightInput.value),
         weight: Number(elements.weightInput.value),
-        targetWeight: Number(elements.targetWeightInput.value),
         activity: Number(elements.activityInput.value)
       };
     }
@@ -1577,7 +1599,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       if ((me.streak || 0) > 0) return "오늘 빠지면 연속 기록이 끊겨요. 지금 운동하고 스트릭을 이어가세요.";
       if (friendsChecked > 0) return "아직 오늘의 운동 출석이 비어 있어요. 친구들은 이미 초록불을 켰습니다.";
       if ((me.week || 0) < bestFriendWeek) return "친구들의 운동 기록이 하나씩 채워지고 있어요. 오늘의 초록불, 놓치지 마세요.";
-      return "오늘 운동, 아직 당신만 회색입니다. 초록불 하나 켜러 가볼까요?";
+      return "오늘 운동, 아직 당신만 미기록입니다. 초록불 하나 켜러 가볼까요?";
     }
 
     function renderWeekHeatmap(me, date) {
@@ -1586,9 +1608,8 @@ const ranking = attendance.run(selectedDate);</code></pre>
         const label = day.slice(5).replace("-", "/");
         const done = attendance.has(day);
         return `
-          <div class="day-cell ${done ? "done" : ""} ${day === date ? "today" : ""}" title="${day}">
+          <div class="day-cell ${done ? "done" : ""} ${day === date ? "selected" : ""}" title="${day} ${done ? "운동 완료" : "미기록"}">
             <span>${label}</span>
-            <span>${done ? "초록불" : "회색"}</span>
           </div>
         `;
       }).join("");
@@ -1597,7 +1618,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
     function renderMonthHeatmap(me, date) {
       const attendance = new Set(me?.attendance || []);
       elements.monthHeatmap.innerHTML = getMonthDates(date).map((day) => `
-        <div class="month-cell ${attendance.has(day) ? "done" : ""}" title="${day}"></div>
+        <div class="month-cell ${attendance.has(day) ? "done" : ""} ${day === date ? "selected" : ""}" title="${day} ${attendance.has(day) ? "운동 완료" : "미기록"}"></div>
       `).join("");
     }
 
@@ -1638,11 +1659,12 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
     function renderPlan(profile) {
       const target = state.target;
-      const diff = profile.targetWeight - profile.weight;
+      const speedLabels = { slow: "천천히", normal: "보통", fast: "빠르게" };
+      const adjustmentLabel = target.adjustment > 0 ? `+${formatNumber(target.adjustment)}` : formatNumber(target.adjustment);
       elements.plannerBmr.textContent = `${formatNumber(target.bmr)} kcal`;
       elements.plannerTdee.textContent = `${formatNumber(target.tdee)} kcal`;
       elements.plannerTarget.textContent = `${formatNumber(target.calories)} kcal`;
-      elements.plannerDiff.textContent = `${diff > 0 ? "+" : ""}${Math.round(diff * 10) / 10} kg`;
+      elements.plannerAdjustment.textContent = `${adjustmentLabel} kcal`;
       elements.sideBmr.textContent = formatNumber(target.bmr);
       elements.sideTdee.textContent = formatNumber(target.tdee);
       elements.sideCalories.textContent = formatNumber(target.calories);
@@ -1651,10 +1673,16 @@ const ranking = attendance.run(selectedDate);</code></pre>
       elements.carbTarget.textContent = `${target.carb} g`;
       elements.proteinTarget.textContent = `${target.protein} g`;
       elements.fatTarget.textContent = `${target.fat} g`;
+      elements.goalSpeed.disabled = elements.goalMode.value === "maintain";
+      elements.goalDescription.innerHTML = `
+        <strong>${target.label} · ${elements.goalMode.value === "maintain" ? "속도 조정 없음" : speedLabels[profile.speed]}</strong><br>
+        ${getGoalDescription(elements.goalMode.value)}
+        ${elements.goalMode.value === "maintain" ? " 유지 목표에서는 속도 조정이 적용되지 않습니다." : ""}
+      `;
       elements.plannerMessage.innerHTML = `
         <strong>${target.label} 플랜</strong><br>
-        하루 ${formatNumber(target.calories)} kcal 기준으로 탄수화물 ${target.carb}g,
-        단백질 ${target.protein}g, 지방 ${target.fat}g을 목표로 잡았습니다.
+        오늘 목표는 ${formatNumber(target.calories)} kcal입니다. 단백질 ${target.protein}g을 먼저 잡고,
+        지방 ${target.fat}g을 계산한 뒤 남은 에너지를 탄수화물 ${target.carb}g으로 배분했습니다.
       `;
     }
 
@@ -1844,8 +1872,11 @@ const ranking = attendance.run(selectedDate);</code></pre>
     }
 
     async function loadRemoteAttendance() {
-      if (!API_ENABLED) return;
       const date = elements.groupDate.value || todayString();
+      if (!API_ENABLED) {
+        renderAttendance();
+        return;
+      }
       try {
         const data = await apiRequest(`/attendance?date=${encodeURIComponent(date)}`);
         state.members = data.members;
@@ -1939,7 +1970,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
         <div class="record-row">
           <div>
             <strong>${member.name}</strong>
-            <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일 · ${member.checked ? "오늘 초록불" : "오늘 회색"}</span>
+            <span class="row-note">이번 주 ${member.week}회 · 연속 ${member.streak}일 · ${member.checked ? "오늘 초록불" : "오늘 미기록"}</span>
           </div>
           <div class="attendance-actions">
             <span class="pill ${member.checked ? "done" : ""}">${member.checked ? "출석" : "미출석"}</span>
@@ -1974,7 +2005,6 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const cutting = new CuttingPlan().run(profile);
       const maintain = new MaintainPlan().run(profile);
       const leanBulk = new LeanBulkPlan().run(profile);
-      const muscleGain = new MuscleGainPlan().run(profile);
       const attendedCount = attendance.filter((member) => member.checked).length;
       const topMember = attendance[0];
       const samples = {
@@ -1984,7 +2014,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
         },
         goal: {
           title: "GoalPlan.run(profile):",
-          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 BMR ${formatNumber(target.bmr)} kcal, 유지 칼로리 ${formatNumber(target.tdee)} kcal 계산에 필요한 공통 값을 제공합니다.`
+          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 기초대사량 ${formatNumber(target.bmr)} kcal, 유지 칼로리 ${formatNumber(target.tdee)} kcal 계산에 필요한 공통 값을 제공합니다.`
         },
         meal: {
           title: "MealRecord.run(target):",
@@ -1996,19 +2026,15 @@ const ranking = attendance.run(selectedDate);</code></pre>
         },
         cut: {
           title: "CuttingPlan.run(profile):",
-          body: `감량 목표에 맞춰 하루 목표 ${formatNumber(cutting.calories)} kcal를 계산했습니다. 탄수화물 ${cutting.carb}g, 단백질 ${cutting.protein}g, 지방 ${cutting.fat}g으로 배분했습니다.`
+          body: `감량 목표에 맞춰 유지 칼로리보다 낮은 하루 목표 ${formatNumber(cutting.calories)} kcal를 계산했습니다. 탄수화물 ${cutting.carb}g, 단백질 ${cutting.protein}g, 지방 ${cutting.fat}g으로 배분했습니다.`
         },
         maintain: {
           title: "MaintainPlan.run(profile):",
-          body: `현재 체중 유지에 맞춰 하루 목표 ${formatNumber(maintain.calories)} kcal를 계산했습니다. 탄수화물 ${maintain.carb}g, 단백질 ${maintain.protein}g, 지방 ${maintain.fat}g으로 배분했습니다.`
+          body: `현재 체중 유지를 위한 하루 목표 ${formatNumber(maintain.calories)} kcal를 계산했습니다. 탄수화물 ${maintain.carb}g, 단백질 ${maintain.protein}g, 지방 ${maintain.fat}g으로 배분했습니다.`
         },
         leanBulk: {
           title: "LeanBulkPlan.run(profile):",
-          body: `린매스업 목표에 맞춰 하루 목표 ${formatNumber(leanBulk.calories)} kcal를 계산했습니다. 칼로리 흑자와 단백질 목표 ${leanBulk.protein}g을 함께 계산했습니다.`
-        },
-        bulk: {
-          title: "MuscleGainPlan.run(profile):",
-          body: `근육량 증가 목표에 맞춰 하루 목표 ${formatNumber(muscleGain.calories)} kcal를 계산했습니다. 탄수화물 ${muscleGain.carb}g, 단백질 ${muscleGain.protein}g, 지방 ${muscleGain.fat}g으로 배분했습니다.`
+          body: `체지방 증가를 최소화하는 린매스업 목표 칼로리 ${formatNumber(leanBulk.calories)} kcal를 계산했습니다. 탄수화물 ${leanBulk.carb}g, 단백질 ${leanBulk.protein}g, 지방 ${leanBulk.fat}g으로 배분했습니다.`
         }
       };
       const result = samples[type] || samples.fitness;
@@ -2033,7 +2059,6 @@ const ranking = attendance.run(selectedDate);</code></pre>
     bindClick("#addMealBtn", addMeal);
     bindClick("#undoMealBtn", undoMeal);
     bindClick("#resetMealBtn", resetMeals);
-    bindClick("#clearOldBtn", resetMeals);
     bindClick("#addMemberBtn", addMember);
     elements.memberNameInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") addMember();
@@ -2049,10 +2074,10 @@ const ranking = attendance.run(selectedDate);</code></pre>
     [
       elements.sexInput,
       elements.goalMode,
+      elements.goalSpeed,
       elements.ageInput,
       elements.heightInput,
       elements.weightInput,
-      elements.targetWeightInput,
       elements.activityInput
     ].forEach((input) => input.addEventListener("input", calculatePlan));
 

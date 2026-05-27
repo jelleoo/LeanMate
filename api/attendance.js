@@ -15,9 +15,7 @@ async function getAttendanceSummary(date) {
   const weekDates = getWeekDates(date);
   const [members, attendance] = await Promise.all([
     supabaseFetch("leanmate_members?select=id,name,created_at&order=created_at.asc"),
-    supabaseFetch(
-      `leanmate_attendance?select=member_id,date&date=gte.${weekDates[0]}&date=lte.${weekDates[6]}`
-    )
+    supabaseFetch("leanmate_attendance?select=member_id,date&order=date.asc")
   ]);
 
   const attendanceByMember = attendance.reduce((map, row) => {
@@ -33,7 +31,7 @@ async function getAttendanceSummary(date) {
         ...member,
         attendance: dates,
         checked: dates.includes(date),
-        week: dates.length,
+        week: dates.filter((day) => weekDates.includes(day)).length,
         streak: getStreak(dates, date)
       };
     })
