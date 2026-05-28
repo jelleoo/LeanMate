@@ -788,6 +788,8 @@
       gap: 0;
       margin-top: 16px;
       padding: 10px 0 4px;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     .class-card {
@@ -826,6 +828,7 @@
       min-width: 0;
       white-space: nowrap;
       font-size: 15px;
+      line-height: 1.2;
     }
 
     .class-card p {
@@ -841,6 +844,7 @@
       display: grid;
       gap: 16px;
       width: 100%;
+      min-width: 0;
     }
 
     .uml-level.root {
@@ -860,7 +864,7 @@
     }
 
     .uml-level.direct {
-      grid-template-columns: minmax(560px, 2.4fr) repeat(3, minmax(180px, 1fr));
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
       align-items: flex-start;
       padding-top: 34px;
       padding-bottom: 34px;
@@ -881,6 +885,7 @@
       position: relative;
       display: flex;
       justify-content: center;
+      min-width: 0;
     }
 
     .uml-node-wrap.goal-parent {
@@ -904,6 +909,7 @@
     .uml-node-wrap .class-card {
       width: 100%;
       max-width: 280px;
+      min-width: 0;
     }
 
     .uml-node-wrap.goal-parent > .class-card {
@@ -913,8 +919,9 @@
     .goal-branch {
       position: relative;
       width: 100%;
-      max-width: 640px;
+      max-width: 100%;
       margin-top: 34px;
+      min-width: 0;
     }
 
     .goal-branch::before {
@@ -952,7 +959,7 @@
     }
 
     .uml-level.goal-children {
-      grid-template-columns: repeat(3, minmax(160px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       padding-top: 34px;
     }
 
@@ -1023,7 +1030,7 @@
 
     @media (max-width: 1180px) {
       .uml-level.direct {
-        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .uml-node-wrap.goal-parent {
@@ -1047,6 +1054,10 @@
 
       .goal-branch {
         max-width: 100%;
+      }
+
+      .uml-level.goal-children {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .code-explain {
@@ -1076,8 +1087,26 @@
       .oop-summary,
       .metrics,
       .bar-row,
-      .week-strip {
+      .week-strip,
+      .uml-level.direct,
+      .uml-level.goal-children {
         grid-template-columns: 1fr;
+      }
+
+      .uml-level.direct::before,
+      .uml-level.goal-children::before {
+        left: 50%;
+        right: auto;
+        width: 2px;
+        height: 100%;
+        transform: translateX(-50%);
+      }
+
+      .uml-level.direct .uml-node-wrap::before,
+      .uml-level.goal-children .uml-node-wrap::before,
+      .uml-level.direct .uml-node-wrap::after,
+      .uml-level.goal-children .uml-node-wrap::after {
+        display: none;
       }
 
       .attendance-actions {
