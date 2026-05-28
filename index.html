@@ -764,6 +764,20 @@
       gap: 14px;
     }
 
+    .architecture-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .architecture-result {
+      position: sticky;
+      top: 94px;
+      display: grid;
+      gap: 12px;
+    }
+
     .class-card {
       box-shadow: none;
       padding: 14px;
@@ -850,10 +864,26 @@
       margin-bottom: 4px;
     }
 
+    .requirement-note {
+      margin-top: 14px;
+      border: 1px solid #d8e4da;
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--muted);
+      background: #f8fbf7;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     @media (max-width: 940px) {
       .hero,
-      .grid {
+      .grid,
+      .architecture-layout {
         grid-template-columns: 1fr;
+      }
+
+      .architecture-result {
+        position: static;
       }
 
       .children,
@@ -1283,80 +1313,89 @@
             <span class="row-note">같은 run() 호출이 객체 타입에 따라 칼로리, 식단, 랭킹 계산으로 바뀝니다.</span>
           </div>
         </div>
-        <div class="uml-tree">
-          <div class="class-card active">
-            <button type="button" data-class="fitness">
-              <div class="class-title">
-                <span>FitnessModule</span>
-                <span class="tag">base</span>
+        <div class="architecture-layout">
+          <div class="uml-tree" aria-label="LeanMate 클래스 상속 구조">
+            <div class="class-card active">
+              <button type="button" data-class="fitness">
+                <div class="class-title">
+                  <span>FitnessModule</span>
+                  <span class="tag">base</span>
+                </div>
+                <p>모든 기능 객체가 상속받는 부모 클래스이며 공통 run() 메서드 인터페이스를 정의합니다.</p>
+              </button>
+            </div>
+            <div class="arrow">상속 extends</div>
+            <div class="children">
+              <div class="class-card">
+                <button type="button" data-class="goal">
+                  <div class="class-title">
+                    <span>GoalPlan</span>
+                    <span class="tag">base-plan</span>
+                  </div>
+                  <p>run(profile)을 오버라이딩해 기초대사량과 유지 칼로리라는 공통 계산값을 제공합니다.</p>
+                </button>
               </div>
-              <p>모든 기능 객체가 상속받는 부모 클래스이며 공통 run() 메서드 인터페이스를 정의합니다.</p>
-            </button>
-          </div>
-          <div class="arrow">상속 extends</div>
-          <div class="children">
-            <div class="class-card">
-              <button type="button" data-class="goal">
-                <div class="class-title">
-                  <span>GoalPlan</span>
-                  <span class="tag">abstract</span>
-                </div>
-                <p>목표 칼로리와 탄단지 계산 클래스들이 상속받는 중간 부모 클래스입니다.</p>
-              </button>
+              <div class="class-card">
+                <button type="button" data-class="meal">
+                  <div class="class-title">
+                    <span>MealRecord</span>
+                    <span class="tag">override</span>
+                  </div>
+                  <p>run(target)을 오버라이딩해 식단 Array의 총 섭취량과 남은 칼로리를 계산합니다.</p>
+                </button>
+              </div>
+              <div class="class-card">
+                <button type="button" data-class="attendance">
+                  <div class="class-title">
+                    <span>AttendanceRecord</span>
+                    <span class="tag">override</span>
+                  </div>
+                  <p>run(date)을 오버라이딩해 초록불 기록, 주간 랭킹, 연속 출석일을 계산합니다.</p>
+                </button>
+              </div>
             </div>
-            <div class="class-card">
-              <button type="button" data-class="meal">
-                <div class="class-title">
-                  <span>MealRecord</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(target)을 오버라이딩해 식단 배열의 총 섭취량과 남은 칼로리를 계산합니다.</p>
-              </button>
-            </div>
-            <div class="class-card">
-              <button type="button" data-class="attendance">
-                <div class="class-title">
-                  <span>AttendanceRecord</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(date)을 오버라이딩해 그룹 출석, 주간 랭킹, 연속 출석일을 계산합니다.</p>
-              </button>
-            </div>
-          </div>
-          <div class="arrow">GoalPlan을 상속한 목적별 플랜</div>
-          <div class="children">
-            <div class="class-card">
-              <button type="button" data-class="cut">
-                <div class="class-title">
-                  <span>CuttingPlan</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(profile)을 오버라이딩해 감량용 목표 칼로리와 탄단지를 계산합니다.</p>
-              </button>
-            </div>
-            <div class="class-card">
-              <button type="button" data-class="maintain">
-                <div class="class-title">
-                  <span>MaintainPlan</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(profile)을 오버라이딩해 유지 목적의 하루 권장 칼로리를 계산합니다.</p>
-              </button>
-            </div>
-            <div class="class-card">
-              <button type="button" data-class="leanBulk">
-                <div class="class-title">
-                  <span>LeanBulkPlan</span>
-                  <span class="tag">override</span>
-                </div>
-                <p>run(profile)을 오버라이딩해 린매스업용 칼로리 흑자와 단백질 목표를 계산합니다.</p>
-              </button>
+            <div class="arrow">GoalPlan을 상속한 3가지 목표 플랜</div>
+            <div class="children">
+              <div class="class-card">
+                <button type="button" data-class="cut">
+                  <div class="class-title">
+                    <span>CuttingPlan</span>
+                    <span class="tag">override</span>
+                  </div>
+                  <p>run(profile)을 오버라이딩해 감량용 목표 칼로리와 탄단지를 계산합니다.</p>
+                </button>
+              </div>
+              <div class="class-card">
+                <button type="button" data-class="maintain">
+                  <div class="class-title">
+                    <span>MaintainPlan</span>
+                    <span class="tag">override</span>
+                  </div>
+                  <p>run(profile)을 오버라이딩해 유지 목적의 하루 목표 칼로리를 계산합니다.</p>
+                </button>
+              </div>
+              <div class="class-card">
+                <button type="button" data-class="leanBulk">
+                  <div class="class-title">
+                    <span>LeanBulkPlan</span>
+                    <span class="tag">override</span>
+                  </div>
+                  <p>run(profile)을 오버라이딩해 체지방 증가를 줄이는 린매스업 목표를 계산합니다.</p>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div id="architectureOutput" class="message">
-          <strong>FitnessModule.run():</strong><br>
-          부모 클래스의 공통 인터페이스입니다. 실제 기능은 자식 클래스가 오버라이딩하며, 같은 run() 메서드 호출이 다형성에 의해 서로 다른 결과를 만듭니다.
+          <aside class="architecture-result" aria-label="클래스 run 메서드 실행 결과">
+            <div id="architectureOutput" class="message">
+              <strong>FitnessModule.run():</strong><br>
+              부모 클래스의 공통 인터페이스입니다. 클릭한 자식 클래스가 같은 run() 메서드를 오버라이딩해 서로 다른 계산 결과를 출력합니다.
+            </div>
+            <div class="requirement-note">
+              <strong>과제 요구사항 확인</strong><br>
+              이 화면은 상속 구조를 시각화하고, 각 클래스 노드 클릭 시 해당 클래스의 run() 결과가 바뀌도록 구성했습니다.
+              Git 관리는 main을 안정 버전으로 두고 기능별 branch에서 커밋하는 방식으로 진행했습니다.
+            </div>
+          </aside>
         </div>
         <pre class="code-box"><code>// FitnessModule.run(): 공통 인터페이스
 const plan = createGoalPlan(goalMode);
@@ -1412,6 +1451,19 @@ const ranking = attendance.run(selectedDate);</code></pre>
         const carbCalories = roundedCalories - proteinCalories - (fat * 9);
         const carb = Math.max(Math.round(carbCalories / 4), 0);
         return { calories: roundedCalories, carb, protein, fat };
+      }
+
+      run(profile) {
+        const base = this.calculateBase(profile);
+        return {
+          ...base,
+          label: this.label,
+          calories: Math.round(base.tdee),
+          carb: 0,
+          protein: 0,
+          fat: 0,
+          adjustment: 0
+        };
       }
     }
 
@@ -2548,6 +2600,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
     function showArchitecture(type) {
       const profile = getProfile();
       const target = createGoalPlan(elements.goalMode.value).run(profile);
+      const goalBase = new GoalPlan("goal", "목표 계산 부모").run(profile);
       const mealSummary = new MealRecord(state.meals).run(target);
       const attendance = new AttendanceRecord(state.members).run(elements.groupDate.value || todayString());
       const cutting = new CuttingPlan().run(profile);
@@ -2558,31 +2611,31 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const samples = {
         fitness: {
           title: "FitnessModule.run():",
-          body: "부모 클래스의 공통 인터페이스입니다. 실제 기능은 자식 클래스가 오버라이딩하며, 같은 run() 메서드가 다형성에 의해 다른 계산을 수행합니다."
+          body: "부모 클래스의 공통 인터페이스입니다. 현재 화면에서는 GoalPlan, MealRecord, AttendanceRecord가 이를 상속하고, 같은 run() 호출이 목표 계산, 식단 합산, 초록불 랭킹 계산으로 다르게 실행됩니다."
         },
         goal: {
           title: "GoalPlan.run(profile):",
-          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 기초대사량 ${formatNumber(target.bmr)} kcal, 유지 칼로리 ${formatNumber(target.tdee)} kcal 계산에 필요한 공통 값을 제공합니다.`
+          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 기초대사량 ${formatNumber(goalBase.bmr)} kcal, 유지 칼로리 ${formatNumber(goalBase.tdee)} kcal를 계산해 자식 플랜들이 재사용할 공통 값을 제공합니다.`
         },
         meal: {
           title: "MealRecord.run(target):",
-          body: `오늘 식단 배열을 합산해 총 ${formatNumber(mealSummary.calories)} kcal, 탄 ${formatGram(mealSummary.carb)}, 단 ${formatGram(mealSummary.protein)}, 지 ${formatGram(mealSummary.fat)}를 계산했습니다. 목표 대비 남은 칼로리는 ${formatNumber(mealSummary.remaining)} kcal입니다.`
+          body: `오늘 식단 Array를 합산해 총 ${formatNumber(mealSummary.calories)} kcal, 탄 ${formatGram(mealSummary.carb)}, 단 ${formatGram(mealSummary.protein)}, 지 ${formatGram(mealSummary.fat)}를 계산했습니다. 음식 영양정보는 Map ${foodDatabase.size}개 항목에서 조회하고, 목표 대비 남은 칼로리는 ${formatNumber(mealSummary.remaining)} kcal입니다.`
         },
         attendance: {
           title: "AttendanceRecord.run(date):",
-          body: `그룹 출석 기록을 바탕으로 ${attendance.length}명 중 오늘 ${attendedCount}명의 출석을 계산하고, 주간 랭킹 1위 ${topMember?.name || "없음"}의 ${topMember?.week || 0}회 출석과 연속 ${topMember?.streak || 0}일을 계산했습니다.`
+          body: `날짜별 초록불 기록을 바탕으로 ${attendance.length}명 중 오늘 ${attendedCount}명의 출석을 계산하고, Sort로 주간 랭킹 1위 ${topMember?.name || "없음"}의 ${topMember?.week || 0}회 출석과 연속 ${topMember?.streak || 0}일을 계산했습니다.`
         },
         cut: {
           title: "CuttingPlan.run(profile):",
-          body: `감량 목표에 맞춰 유지 칼로리보다 낮은 하루 목표 ${formatNumber(cutting.calories)} kcal를 계산했습니다. 탄수화물 ${cutting.carb}g, 단백질 ${cutting.protein}g, 지방 ${cutting.fat}g으로 배분했습니다.`
+          body: `감량 목표에 맞춰 유지 칼로리 ${formatNumber(cutting.tdee)} kcal에서 ${Math.abs(cutting.adjustment)} kcal를 줄여 하루 목표 ${formatNumber(cutting.calories)} kcal를 계산했습니다. 탄수화물 ${cutting.carb}g, 단백질 ${cutting.protein}g, 지방 ${cutting.fat}g으로 배분했습니다.`
         },
         maintain: {
           title: "MaintainPlan.run(profile):",
-          body: `현재 체중 유지를 위한 하루 목표 ${formatNumber(maintain.calories)} kcal를 계산했습니다. 탄수화물 ${maintain.carb}g, 단백질 ${maintain.protein}g, 지방 ${maintain.fat}g으로 배분했습니다.`
+          body: `현재 체중 유지를 위해 유지 칼로리 ${formatNumber(maintain.tdee)} kcal를 그대로 하루 목표 ${formatNumber(maintain.calories)} kcal로 계산했습니다. 탄수화물 ${maintain.carb}g, 단백질 ${maintain.protein}g, 지방 ${maintain.fat}g으로 배분했습니다.`
         },
         leanBulk: {
           title: "LeanBulkPlan.run(profile):",
-          body: `체지방 증가를 최소화하는 린매스업 목표 칼로리 ${formatNumber(leanBulk.calories)} kcal를 계산했습니다. 탄수화물 ${leanBulk.carb}g, 단백질 ${leanBulk.protein}g, 지방 ${leanBulk.fat}g으로 배분했습니다.`
+          body: `체지방 증가를 최소화하기 위해 유지 칼로리 ${formatNumber(leanBulk.tdee)} kcal에 ${leanBulk.adjustment} kcal만 더해 린매스업 목표 ${formatNumber(leanBulk.calories)} kcal를 계산했습니다. 탄수화물 ${leanBulk.carb}g, 단백질 ${leanBulk.protein}g, 지방 ${leanBulk.fat}g으로 배분했습니다.`
         }
       };
       const result = samples[type] || samples.fitness;

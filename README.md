@@ -40,10 +40,12 @@ FitnessModule
 ```
 
 - `FitnessModule`: 공통 `run()` 인터페이스를 정의하는 부모 클래스
-- `GoalPlan`: 목표 계산 클래스들의 부모 클래스
+- `GoalPlan`: 기초대사량과 유지 칼로리를 계산하는 목표 계산 클래스들의 부모 클래스
 - `CuttingPlan`, `MaintainPlan`, `LeanBulkPlan`: 목적별 칼로리와 탄단지 계산을 오버라이딩
-- `MealRecord`: 식단 배열을 합산해 오늘 섭취량을 계산
-- `AttendanceRecord`: 날짜별 출석 기록을 바탕으로 주간 랭킹 계산
+- `MealRecord`: 식단 배열을 합산해 오늘 섭취량과 남은 칼로리를 계산
+- `AttendanceRecord`: 날짜별 초록불 기록을 바탕으로 주간 랭킹과 연속 출석일 계산
+
+Architecture 화면에서는 각 클래스 노드를 클릭하면 해당 클래스의 `run()` 메서드 결과가 출력됩니다. 같은 `run()` 호출이 객체 타입에 따라 기초대사량 계산, 감량/유지/린매스업 목표 계산, 식단 합산, 초록불 랭킹 계산으로 다르게 동작하도록 구현했습니다.
 
 ## 사용한 자료구조
 
@@ -96,4 +98,13 @@ POST /api/food-search
 
 Vercel 환경 변수와 Supabase가 설정되어 있으면 그룹 출석은 Supabase에 저장됩니다. 로컬에서 `file://`로 실행하거나 백엔드 설정이 없으면 브라우저 `localStorage`를 fallback 저장소로 사용합니다.
 
-OpenAI API 키는 프론트엔드에 노출하지 않고 `/api/food-search` 서버리스 함수에서만 사용합니다. 음식 검색 결과는 곧바로 저장하지 않고, 사용자가 kcal와 탄단지를 확인하거나 수정한 뒤 식단에 추가합니다.
+OpenAI API 키는 프론트엔드에 노출하지 않고 `/api/food-search` 서버리스 함수에서만 사용합니다. 현재 식단 추가 흐름은 로컬 음식 DB와 직접 입력을 우선 사용하며, 기본 DB 음식은 섭취량만 조절하고 직접 입력 음식은 사용자가 kcal와 탄단지를 입력한 뒤 저장합니다.
+
+## Git 브랜치 관리
+
+- `main`: 안정 버전 유지
+- `feature/goal-calculation`: 목표 분류와 탄단지 계산 공식 수정
+- `feature/deployment-config`: Vercel 배포 설정 수정
+- `feature/local-food-db-and-favorites`: 로컬 음식 DB와 즐겨찾기 기능
+- `feature/final-ui-polish`: 최종 UI/UX 정리
+- `feature/oop-architecture`: OOP 상속 구조와 다형성 시각화 보강
