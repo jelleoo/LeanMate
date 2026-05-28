@@ -424,20 +424,26 @@
     .nutrition-preview {
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px;
+      padding: 16px;
       background: #f8fbf7;
     }
 
     .nutrition-preview h3 {
-      margin-bottom: 6px;
+      margin: 4px 0 12px;
       font-size: 20px;
+    }
+
+    .selected-food-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
     }
 
     .source-label {
       display: inline-flex;
       align-items: center;
       width: fit-content;
-      margin-bottom: 12px;
       border-radius: 999px;
       padding: 4px 10px;
       color: var(--green-dark);
@@ -446,25 +452,46 @@
       font-weight: 900;
     }
 
-    .nutrition-grid {
+    .amount-control {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 6px;
+      margin: 12px 0;
     }
 
-    .nutrition-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px;
+    .amount-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .amount-input-wrap input {
+      max-width: 150px;
       background: #fff;
     }
 
-    .nutrition-card span {
+    .nutrition-result {
+      padding-top: 4px;
+    }
+
+    .nutrition-result strong {
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .nutrition-total {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .base-nutrition {
+      margin: 10px 0 0;
       color: var(--muted);
       font-size: 13px;
-      font-weight: 800;
+      line-height: 1.45;
     }
 
     .record-list,
@@ -892,10 +919,10 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">LeanMate</p>
-          <h1>목표에 맞춘 식단과 운동 출석을 함께 관리하세요.</h1>
+          <h1>혼자 하면 다이어트,<br>함께 하면 라이프스타일.</h1>
           <p>
-            기초대사량과 활동량을 바탕으로 하루 섭취 칼로리와 탄단지를 계산하고,
-            실제로 먹은 식단과 그룹 운동 출석을 함께 기록합니다.
+            식단 기록과 운동 출석을 함께 관리하며,<br>
+            친구들과 꾸준한 건강 루틴을 만들어보세요.
           </p>
           <div class="button-row" style="margin-top: 20px;">
             <button class="btn" type="button" data-view-target="planner">목표 계산</button>
@@ -955,10 +982,6 @@
                 음식
                 <select id="foodSelect"></select>
               </label>
-              <label>
-                섭취량 g
-                <input id="gramsInput" type="number" value="100" min="10" step="10">
-              </label>
             </div>
             <div class="button-row">
               <button class="btn secondary" id="resetMealBtn" type="button">초기화</button>
@@ -973,7 +996,20 @@
             </div>
             <div class="panel" id="foodReviewPanel" style="display: none; margin-top: 14px; box-shadow: none;">
               <h2 style="font-size: 18px; margin-bottom: 10px;">선택한 음식</h2>
-              <div id="selectedFoodPreview" class="nutrition-preview"></div>
+              <div class="nutrition-preview">
+                <div class="selected-food-header">
+                  <div id="selectedFoodPreview"></div>
+                  <button class="star-button" id="favoriteReviewBtn" type="button" aria-label="즐겨찾기 추가" title="즐겨찾기 추가">☆</button>
+                </div>
+                <label class="amount-control">
+                  섭취량
+                  <span class="amount-input-wrap">
+                    <input id="gramsInput" type="number" value="100" min="10" step="10">
+                    <span>g</span>
+                  </span>
+                </label>
+                <div id="selectedNutritionResult" class="nutrition-result"></div>
+              </div>
               <div class="form-grid manual-fields hidden" id="manualFoodFields" style="margin-top: 12px;">
                 <label>
                   음식명
@@ -1003,7 +1039,6 @@
               <div class="row-note" id="reviewSourceNote"></div>
               <div class="button-row" style="margin-top: 12px;">
                 <button class="btn" id="addReviewedFoodBtn" type="button">음식 추가</button>
-                <button class="star-button" id="favoriteReviewBtn" type="button" aria-label="즐겨찾기 추가" title="즐겨찾기 추가">☆</button>
                 <button class="btn secondary" id="cancelReviewedFoodBtn" type="button">취소</button>
               </div>
             </div>
@@ -1635,6 +1670,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       foodCandidates: document.querySelector("#foodCandidates"),
       foodReviewPanel: document.querySelector("#foodReviewPanel"),
       selectedFoodPreview: document.querySelector("#selectedFoodPreview"),
+      selectedNutritionResult: document.querySelector("#selectedNutritionResult"),
       manualFoodFields: document.querySelector("#manualFoodFields"),
       reviewFoodName: document.querySelector("#reviewFoodName"),
       reviewServing: document.querySelector("#reviewServing"),
@@ -1997,6 +2033,10 @@ const ranking = attendance.run(selectedDate);</code></pre>
       return `${Math.round(food.calories)} kcal · 탄 ${formatGram(food.carb)} · 단 ${formatGram(food.protein)} · 지 ${formatGram(food.fat)}`;
     }
 
+    function nutritionLineFull(food) {
+      return `${Math.round(food.calories)} kcal · 탄수화물 ${formatGram(food.carb)} · 단백질 ${formatGram(food.protein)} · 지방 ${formatGram(food.fat)}`;
+    }
+
     function renderFoodCandidates(candidates) {
       state.foodCandidates = candidates;
       if (candidates.length === 0) {
@@ -2149,6 +2189,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
     function renderSelectedFoodPreview() {
       if (!state.selectedFood) {
         elements.selectedFoodPreview.innerHTML = "";
+        elements.selectedNutritionResult.innerHTML = "";
         return;
       }
       const mode = getSelectedFoodMode();
@@ -2161,16 +2202,11 @@ const ranking = attendance.run(selectedDate);</code></pre>
       elements.selectedFoodPreview.innerHTML = `
         <span class="source-label">${escapeHtml(sourceLabel)}</span>
         <h3>${escapeHtml(name)}</h3>
-        <div class="nutrition-grid">
-          <div class="nutrition-card">
-            <span>100g 기준</span>
-            <strong>${nutritionLine(base)}</strong>
-          </div>
-          <div class="nutrition-card">
-            <span>${formatNumber(getSelectedServingGrams())}g 섭취 시</span>
-            <strong>${nutritionLine(intake)}</strong>
-          </div>
-        </div>
+        <p class="base-nutrition">100g 기준: ${nutritionLineFull(base)}</p>
+      `;
+      elements.selectedNutritionResult.innerHTML = `
+        <strong>${formatNumber(getSelectedServingGrams())}g 기준 예상 섭취량</strong>
+        <p class="nutrition-total">${nutritionLineFull(intake)}</p>
       `;
       elements.reviewSourceNote.textContent = isManual
         ? "기본 음식 DB에서 찾지 못했습니다. 직접 입력해서 기록할 수 있습니다."
