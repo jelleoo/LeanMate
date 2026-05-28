@@ -226,7 +226,8 @@
       margin-top: 6px;
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
+      word-break: keep-all;
     }
 
     .grid {
@@ -325,6 +326,10 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin: 16px 0;
+    }
+
+    .summary-grid.compact-summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .summary-cell:nth-child(1) {
@@ -805,6 +810,12 @@
       justify-content: space-between;
       gap: 10px;
       font-weight: 900;
+      min-width: 0;
+    }
+
+    .class-title > span:first-child {
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .class-card p {
@@ -814,11 +825,12 @@
     }
 
     .tag {
+      flex: 0 0 auto;
       border-radius: 999px;
-      padding: 4px 8px;
+      padding: 4px 7px;
       color: var(--green-dark);
       background: var(--mint);
-      font-size: 12px;
+      font-size: 11px;
       white-space: nowrap;
     }
 
@@ -844,6 +856,26 @@
       font-size: 13px;
     }
 
+    .code-explain {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .code-explain-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--surface-soft);
+    }
+
+    .code-explain-item strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--green-dark);
+    }
+
     .oop-summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -864,17 +896,6 @@
       margin-bottom: 4px;
     }
 
-    .requirement-note {
-      margin-top: 14px;
-      border: 1px solid #d8e4da;
-      border-radius: 8px;
-      padding: 12px;
-      color: var(--muted);
-      background: #f8fbf7;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
     @media (max-width: 940px) {
       .hero,
       .grid,
@@ -889,6 +910,10 @@
       .children,
       .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .code-explain {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -949,10 +974,9 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">LeanMate</p>
-          <h1>혼자 하면 다이어트,<br>함께 하면 라이프스타일.</h1>
+          <h1>혼자 하면 다이어트, 함께 하면 라이프스타일.</h1>
           <p>
-            식단 기록과 운동 출석을 함께 관리하며,<br>
-            친구들과 꾸준한 건강 루틴을 만들어보세요.
+            식단 기록과 운동 출석을 함께 관리하며 친구들과 꾸준한 건강 루틴을 만들어보세요.
           </p>
           <div class="button-row" style="margin-top: 20px;">
             <button class="btn" type="button" data-view-target="planner">목표 계산</button>
@@ -1107,7 +1131,7 @@
         <aside>
           <section class="panel" aria-labelledby="today-plan-title">
             <h2 id="today-plan-title">오늘 목표</h2>
-            <div class="summary-grid">
+            <div class="summary-grid compact-summary">
               <div class="summary-cell" title="아무것도 하지 않아도 몸이 쓰는 에너지">
                 <span>기초대사량</span>
                 <strong id="sideBmr">0</strong>
@@ -1297,7 +1321,8 @@
         <h2 id="architecture-title">LeanMate OOP Architecture</h2>
         <p class="panel-note">
           LeanMate의 핵심 기능은 상속 구조로 설계되어 있으며, 각 클래스 카드를 클릭하면 오버라이딩된
-          <strong>run() 메서드</strong>가 다형성에 의해 서로 다른 계산 결과를 출력합니다.
+          <strong>run() 메서드</strong>가 다양한 출력을 확인할 수 있습니다.
+          Git 관리는 main을 안정 버전으로 두고 기능별 branch에서 커밋하는 방식으로 진행했습니다.
         </p>
         <div class="oop-summary">
           <div class="oop-summary-item">
@@ -1319,7 +1344,7 @@
               <button type="button" data-class="fitness">
                 <div class="class-title">
                   <span>FitnessModule</span>
-                  <span class="tag">base</span>
+                  <span class="tag">부모</span>
                 </div>
                 <p>모든 기능 객체가 상속받는 부모 클래스이며 공통 run() 메서드 인터페이스를 정의합니다.</p>
               </button>
@@ -1330,7 +1355,7 @@
                 <button type="button" data-class="goal">
                   <div class="class-title">
                     <span>GoalPlan</span>
-                    <span class="tag">base-plan</span>
+                    <span class="tag">중간 부모</span>
                   </div>
                   <p>run(profile)을 오버라이딩해 기초대사량과 유지 칼로리라는 공통 계산값을 제공합니다.</p>
                 </button>
@@ -1339,7 +1364,7 @@
                 <button type="button" data-class="meal">
                   <div class="class-title">
                     <span>MealRecord</span>
-                    <span class="tag">override</span>
+                    <span class="tag">재정의</span>
                   </div>
                   <p>run(target)을 오버라이딩해 식단 Array의 총 섭취량과 남은 칼로리를 계산합니다.</p>
                 </button>
@@ -1348,7 +1373,7 @@
                 <button type="button" data-class="attendance">
                   <div class="class-title">
                     <span>AttendanceRecord</span>
-                    <span class="tag">override</span>
+                    <span class="tag">재정의</span>
                   </div>
                   <p>run(date)을 오버라이딩해 초록불 기록, 주간 랭킹, 연속 출석일을 계산합니다.</p>
                 </button>
@@ -1360,7 +1385,7 @@
                 <button type="button" data-class="cut">
                   <div class="class-title">
                     <span>CuttingPlan</span>
-                    <span class="tag">override</span>
+                    <span class="tag">재정의</span>
                   </div>
                   <p>run(profile)을 오버라이딩해 감량용 목표 칼로리와 탄단지를 계산합니다.</p>
                 </button>
@@ -1369,7 +1394,7 @@
                 <button type="button" data-class="maintain">
                   <div class="class-title">
                     <span>MaintainPlan</span>
-                    <span class="tag">override</span>
+                    <span class="tag">재정의</span>
                   </div>
                   <p>run(profile)을 오버라이딩해 유지 목적의 하루 목표 칼로리를 계산합니다.</p>
                 </button>
@@ -1378,7 +1403,7 @@
                 <button type="button" data-class="leanBulk">
                   <div class="class-title">
                     <span>LeanBulkPlan</span>
-                    <span class="tag">override</span>
+                    <span class="tag">재정의</span>
                   </div>
                   <p>run(profile)을 오버라이딩해 체지방 증가를 줄이는 린매스업 목표를 계산합니다.</p>
                 </button>
@@ -1389,11 +1414,6 @@
             <div id="architectureOutput" class="message">
               <strong>FitnessModule.run():</strong><br>
               부모 클래스의 공통 인터페이스입니다. 클릭한 자식 클래스가 같은 run() 메서드를 오버라이딩해 서로 다른 계산 결과를 출력합니다.
-            </div>
-            <div class="requirement-note">
-              <strong>과제 요구사항 확인</strong><br>
-              이 화면은 상속 구조를 시각화하고, 각 클래스 노드 클릭 시 해당 클래스의 run() 결과가 바뀌도록 구성했습니다.
-              Git 관리는 main을 안정 버전으로 두고 기능별 branch에서 커밋하는 방식으로 진행했습니다.
             </div>
           </aside>
         </div>
@@ -1406,6 +1426,20 @@ const mealSummary = mealRecord.run(target);
 
 const attendance = new AttendanceRecord(members);
 const ranking = attendance.run(selectedDate);</code></pre>
+        <div class="code-explain" aria-label="OOP 코드 흐름 설명">
+          <div class="code-explain-item">
+            <strong>1. 목표 계산</strong>
+            <span class="row-note">`createGoalPlan(goalMode)`가 감량, 유지, 린매스업 중 알맞은 자식 클래스를 만들고 `run(profile)`로 하루 목표를 계산합니다.</span>
+          </div>
+          <div class="code-explain-item">
+            <strong>2. 식단 합산</strong>
+            <span class="row-note">`MealRecord.run(target)`은 오늘 식단 배열을 합산해 총 섭취량과 남은 칼로리를 계산합니다.</span>
+          </div>
+          <div class="code-explain-item">
+            <strong>3. 출석 랭킹</strong>
+            <span class="row-note">`AttendanceRecord.run(selectedDate)`는 날짜별 초록불 기록을 바탕으로 주간 랭킹과 연속 출석일을 계산합니다.</span>
+          </div>
+        </div>
       </section>
     </section>
   </main>
