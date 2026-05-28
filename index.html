@@ -413,6 +413,60 @@
       background: #fff8df;
     }
 
+    .hidden-field {
+      display: none;
+    }
+
+    .manual-fields.hidden {
+      display: none;
+    }
+
+    .nutrition-preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8fbf7;
+    }
+
+    .nutrition-preview h3 {
+      margin-bottom: 6px;
+      font-size: 20px;
+    }
+
+    .source-label {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: var(--green-dark);
+      background: var(--mint);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .nutrition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .nutrition-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .nutrition-card span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
     .record-list,
     .ranking,
     .architecture-list {
@@ -897,7 +951,7 @@
                 검색
                 <button class="btn secondary" id="searchFoodBtn" type="button">검색</button>
               </label>
-              <label>
+              <label class="hidden-field">
                 음식
                 <select id="foodSelect"></select>
               </label>
@@ -907,7 +961,6 @@
               </label>
             </div>
             <div class="button-row">
-              <button class="btn" id="addMealBtn" type="button">추가</button>
               <button class="btn secondary" id="resetMealBtn" type="button">초기화</button>
             </div>
             <div class="row-note" id="selectedFoodInfo" style="margin-top: 10px;"></div>
@@ -919,15 +972,16 @@
               <div class="food-candidate-list" id="foodCandidates"></div>
             </div>
             <div class="panel" id="foodReviewPanel" style="display: none; margin-top: 14px; box-shadow: none;">
-              <h2 style="font-size: 18px; margin-bottom: 10px;">검색 결과 확인</h2>
-              <div class="form-grid">
+              <h2 style="font-size: 18px; margin-bottom: 10px;">선택한 음식</h2>
+              <div id="selectedFoodPreview" class="nutrition-preview"></div>
+              <div class="form-grid manual-fields hidden" id="manualFoodFields" style="margin-top: 12px;">
                 <label>
                   음식명
                   <input id="reviewFoodName" type="text">
                 </label>
                 <label>
-                  기준
-                  <input id="reviewServing" type="text">
+                  기준 섭취량 g
+                  <input id="reviewServing" type="number" min="1" step="1" value="100">
                 </label>
                 <label>
                   kcal
@@ -948,7 +1002,7 @@
               </div>
               <div class="row-note" id="reviewSourceNote"></div>
               <div class="button-row" style="margin-top: 12px;">
-                <button class="btn" id="addReviewedFoodBtn" type="button">검토한 음식 추가</button>
+                <button class="btn" id="addReviewedFoodBtn" type="button">음식 추가</button>
                 <button class="star-button" id="favoriteReviewBtn" type="button" aria-label="즐겨찾기 추가" title="즐겨찾기 추가">☆</button>
                 <button class="btn secondary" id="cancelReviewedFoodBtn" type="button">취소</button>
               </div>
@@ -1556,6 +1610,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       customFoods: normalizeCustomFoods(safeJson("leanmate.customFoods", {})),
       favoriteFoods: normalizeFavoriteFoods(safeJson("leanmate.favoriteFoods", [])),
       foodCandidates: [],
+      selectedFood: null,
       selectedMemberId: safeStorageGet("leanmate.selectedMemberId") || null,
       undoStack: [],
       target: null,
@@ -1579,6 +1634,8 @@ const ranking = attendance.run(selectedDate);</code></pre>
       favoriteFoodList: document.querySelector("#favoriteFoodList"),
       foodCandidates: document.querySelector("#foodCandidates"),
       foodReviewPanel: document.querySelector("#foodReviewPanel"),
+      selectedFoodPreview: document.querySelector("#selectedFoodPreview"),
+      manualFoodFields: document.querySelector("#manualFoodFields"),
       reviewFoodName: document.querySelector("#reviewFoodName"),
       reviewServing: document.querySelector("#reviewServing"),
       reviewCalories: document.querySelector("#reviewCalories"),
@@ -1973,16 +2030,12 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const name = typeof foodOrName === "string" ? foodOrName : foodOrName?.name;
       const nutrition = foodDatabase.get(name);
       if (!name || !nutrition) return;
-      showFoodReview({
+      setSelectedFood({
         name,
-        ...nutrition,
-        confidence: state.customFoods[name] ? "custom" : "local",
-        servingDescription: "100g",
-        sourceNote: state.customFoods[name]
-          ? "직접 입력한 음식입니다. 값을 확인하고 필요하면 수정해 주세요."
-          : "기본 음식 DB에서 찾았습니다. 값을 확인하고 필요하면 수정해 주세요."
+        mode: "saved",
+        sourceLabel: state.customFoods[name] ? "저장된 음식 기준" : "기본 음식 DB 기준"
       });
-      elements.searchStatus.textContent = "기본 음식 DB에서 검색 결과를 찾았습니다. 값을 확인하고 필요하면 수정해 주세요.";
+      elements.searchStatus.textContent = "음식을 선택했습니다. 섭취량만 조절하면 예상 칼로리와 탄단지가 자동으로 계산됩니다.";
     }
 
     function saveCustomFood(food) {
@@ -2037,7 +2090,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
     }
 
     function renderSelectedFoodInfo() {
-      const name = elements.foodSelect.value || [...foodDatabase.keys()][0];
+      const name = state.selectedFood?.name || elements.foodSelect.value || [...foodDatabase.keys()][0];
       const nutrition = foodDatabase.get(name);
       if (!nutrition) {
         elements.selectedFoodInfo.textContent = "음식을 선택하면 100g 기준 영양정보가 표시됩니다.";
@@ -2056,17 +2109,103 @@ const ranking = attendance.run(selectedDate);</code></pre>
       });
     }
 
-    function showFoodReview(food) {
-      elements.reviewFoodName.value = food.name || "";
-      elements.reviewServing.value = food.servingDescription || "100g";
-      elements.reviewCalories.value = Math.round(Number(food.calories) || 0);
-      elements.reviewCarb.value = Math.round((Number(food.carb) || 0) * 10) / 10;
-      elements.reviewProtein.value = Math.round((Number(food.protein) || 0) * 10) / 10;
-      elements.reviewFat.value = Math.round((Number(food.fat) || 0) * 10) / 10;
-      elements.reviewSourceNote.textContent =
-        `검색 신뢰도: ${food.confidence || "unknown"} · ${food.sourceNote || "사용자가 확인 후 수정해 주세요."}`;
-      elements.foodReviewPanel.style.display = "block";
+    function getSelectedServingGrams() {
+      return Math.max(Number(elements.gramsInput.value) || 100, 1);
+    }
+
+    function getManualServingGrams() {
+      return Math.max(Number(elements.reviewServing.value) || 100, 1);
+    }
+
+    function getSelectedFoodMode() {
+      return state.selectedFood?.mode === "manual" ? "manual" : "saved";
+    }
+
+    function getFoodBaseNutrition() {
+      if (getSelectedFoodMode() === "manual") {
+        const ratio = getManualServingGrams() / 100;
+        return {
+          calories: (Number(elements.reviewCalories.value) || 0) / ratio,
+          carb: (Number(elements.reviewCarb.value) || 0) / ratio,
+          protein: (Number(elements.reviewProtein.value) || 0) / ratio,
+          fat: (Number(elements.reviewFat.value) || 0) / ratio
+        };
+      }
+      return foodDatabase.get(state.selectedFood?.name) || foodDatabase.get(elements.foodSelect.value);
+    }
+
+    function calculateSelectedNutrition() {
+      const base = getFoodBaseNutrition();
+      if (!base) return null;
+      const ratio = getSelectedServingGrams() / 100;
+      return {
+        calories: base.calories * ratio,
+        carb: base.carb * ratio,
+        protein: base.protein * ratio,
+        fat: base.fat * ratio
+      };
+    }
+
+    function renderSelectedFoodPreview() {
+      if (!state.selectedFood) {
+        elements.selectedFoodPreview.innerHTML = "";
+        return;
+      }
+      const mode = getSelectedFoodMode();
+      const isManual = mode === "manual";
+      elements.manualFoodFields.classList.toggle("hidden", !isManual);
+      const name = isManual ? elements.reviewFoodName.value.trim() || state.selectedFood.name : state.selectedFood.name;
+      const base = getFoodBaseNutrition() || { calories: 0, carb: 0, protein: 0, fat: 0 };
+      const intake = calculateSelectedNutrition() || { calories: 0, carb: 0, protein: 0, fat: 0 };
+      const sourceLabel = isManual ? "직접 입력" : state.selectedFood.sourceLabel;
+      elements.selectedFoodPreview.innerHTML = `
+        <span class="source-label">${escapeHtml(sourceLabel)}</span>
+        <h3>${escapeHtml(name)}</h3>
+        <div class="nutrition-grid">
+          <div class="nutrition-card">
+            <span>100g 기준</span>
+            <strong>${nutritionLine(base)}</strong>
+          </div>
+          <div class="nutrition-card">
+            <span>${formatNumber(getSelectedServingGrams())}g 섭취 시</span>
+            <strong>${nutritionLine(intake)}</strong>
+          </div>
+        </div>
+      `;
+      elements.reviewSourceNote.textContent = isManual
+        ? "기본 음식 DB에서 찾지 못했습니다. 직접 입력해서 기록할 수 있습니다."
+        : "저장된 영양정보를 기준으로 섭취량에 맞춰 자동 계산합니다.";
       updateFavoriteReviewButton();
+      renderSelectedFoodInfo();
+    }
+
+    function setSelectedFood(food) {
+      state.selectedFood = food;
+      elements.reviewFoodName.value = food.name || "";
+      elements.reviewServing.value = food.servingGrams || 100;
+      if (food.mode === "manual") {
+        elements.reviewCalories.value = Math.round(Number(food.calories) || 0);
+        elements.reviewCarb.value = Math.round((Number(food.carb) || 0) * 10) / 10;
+        elements.reviewProtein.value = Math.round((Number(food.protein) || 0) * 10) / 10;
+        elements.reviewFat.value = Math.round((Number(food.fat) || 0) * 10) / 10;
+      } else if (foodDatabase.has(food.name)) {
+        elements.foodSelect.value = food.name;
+      }
+      elements.foodReviewPanel.style.display = "block";
+      renderSelectedFoodPreview();
+    }
+
+    function showFoodReview(food) {
+      setSelectedFood({
+        name: food.name || "",
+        mode: "manual",
+        sourceLabel: "직접 입력",
+        servingGrams: Number(food.servingGrams) || 100,
+        calories: Number(food.calories) || 0,
+        carb: Number(food.carb) || 0,
+        protein: Number(food.protein) || 0,
+        fat: Number(food.fat) || 0
+      });
     }
 
     function updateFavoriteReviewButton() {
@@ -2081,6 +2220,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
     function hideFoodReview() {
       elements.foodReviewPanel.style.display = "none";
+      state.selectedFood = null;
     }
 
     async function searchFoodNutrition() {
@@ -2094,7 +2234,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
       const candidates = searchLocalFoods(query);
       renderFoodCandidates(candidates);
       if (candidates.length > 0) {
-        elements.searchStatus.textContent = "기본 음식 DB에서 검색 결과를 찾았습니다. 값을 확인하고 필요하면 수정해 주세요.";
+        elements.searchStatus.textContent = "기본 음식 DB에서 검색 결과를 찾았습니다. 음식을 선택한 뒤 섭취량을 입력해 주세요.";
         return;
       }
 
@@ -2105,7 +2245,7 @@ const ranking = attendance.run(selectedDate);</code></pre>
         protein: 0,
         fat: 0,
         confidence: "manual",
-        servingDescription: "100g",
+        servingGrams: 100,
         sourceNote: API_ENABLED
           ? "기본 음식 DB에서 찾지 못했습니다. 직접 입력해서 기록할 수 있습니다."
           : "외부 검색은 현재 사용할 수 없지만, 직접 입력으로 식단을 기록할 수 있습니다."
@@ -2114,33 +2254,28 @@ const ranking = attendance.run(selectedDate);</code></pre>
     }
 
     function addReviewedFoodToMeal() {
-      const name = elements.reviewFoodName.value.trim();
+      const name = elements.reviewFoodName.value.trim() || state.selectedFood?.name;
       if (!name) {
         elements.searchStatus.textContent = "음식명을 확인해 주세요.";
         elements.reviewFoodName.focus();
         return;
       }
-      const nutrition = {
-        calories: Number(elements.reviewCalories.value) || 0,
-        carb: Number(elements.reviewCarb.value) || 0,
-        protein: Number(elements.reviewProtein.value) || 0,
-        fat: Number(elements.reviewFat.value) || 0
-      };
-      saveCustomFood({ name, ...nutrition });
-      initFoodOptions();
+      if (getSelectedFoodMode() === "manual") {
+        saveCustomFood({ name, ...getFoodBaseNutrition() });
+        initFoodOptions();
+        state.selectedFood.name = name;
+      }
       elements.foodSelect.value = name;
-      elements.gramsInput.value = 100;
       renderSelectedFoodInfo();
       renderFavoriteFoods();
       renderFoodCandidates(searchLocalFoods(elements.foodSearchInput.value.trim()));
       addMeal();
       hideFoodReview();
-      elements.searchStatus.textContent =
-        `${name}을(를) 확인한 값으로 오늘 식단에 추가했습니다. 기준: ${elements.reviewServing.value || "100g"}`;
+      elements.searchStatus.textContent = `${name} ${getSelectedServingGrams()}g을(를) 오늘 식단에 추가했습니다.`;
     }
 
     function addMeal() {
-      const name = elements.foodSelect.value || [...foodDatabase.keys()][0];
+      const name = state.selectedFood?.name || elements.foodSelect.value || [...foodDatabase.keys()][0];
       const grams = Math.max(Number(elements.gramsInput.value), 10);
       const nutrition = foodDatabase.get(name);
       if (!nutrition) {
@@ -2428,15 +2563,9 @@ const ranking = attendance.run(selectedDate);</code></pre>
     bindClick("#searchFoodBtn", searchFoodNutrition);
     bindClick("#addReviewedFoodBtn", addReviewedFoodToMeal);
     bindClick("#favoriteReviewBtn", () => {
-      const name = elements.reviewFoodName.value.trim();
-      const nutrition = {
-        calories: Number(elements.reviewCalories.value) || 0,
-        carb: Number(elements.reviewCarb.value) || 0,
-        protein: Number(elements.reviewProtein.value) || 0,
-        fat: Number(elements.reviewFat.value) || 0
-      };
+      const name = elements.reviewFoodName.value.trim() || state.selectedFood?.name;
       if (name && !foodDatabase.has(name)) {
-        saveCustomFood({ name, ...nutrition });
+        saveCustomFood({ name, ...getFoodBaseNutrition() });
         initFoodOptions();
       }
       toggleFavoriteFood(name);
@@ -2445,7 +2574,18 @@ const ranking = attendance.run(selectedDate);</code></pre>
     elements.foodSearchInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") searchFoodNutrition();
     });
-    elements.foodSelect.addEventListener("change", renderSelectedFoodInfo);
+    elements.foodSelect.addEventListener("change", () => {
+      selectFoodCandidate(elements.foodSelect.value);
+    });
+    elements.gramsInput.addEventListener("input", renderSelectedFoodPreview);
+    [
+      elements.reviewFoodName,
+      elements.reviewServing,
+      elements.reviewCalories,
+      elements.reviewCarb,
+      elements.reviewProtein,
+      elements.reviewFat
+    ].forEach((input) => input.addEventListener("input", renderSelectedFoodPreview));
     elements.foodCandidates.addEventListener("click", (event) => {
       const candidateButton = event.target.closest("[data-food-candidate]");
       const favoriteButton = event.target.closest("[data-favorite-toggle]");
