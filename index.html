@@ -1351,6 +1351,9 @@
             <span class="row-note">같은 run() 호출이 객체 타입에 따라 칼로리, 식단, 랭킹 계산으로 바뀝니다.</span>
           </div>
         </div>
+        <p class="panel-note">
+          모든 기능 클래스는 같은 <strong>run()</strong> 메서드를 가지고 있지만, 각 클래스가 이를 오버라이딩하여 서로 다른 계산 결과를 출력합니다.
+        </p>
         <div class="uml-tree">
           <div class="class-card active">
             <button type="button" data-class="fitness">
@@ -1437,18 +1440,8 @@
             부모 클래스의 공통 인터페이스입니다. 클릭한 자식 클래스가 같은 run() 메서드를 오버라이딩해 서로 다른 계산 결과를 출력합니다.
           </div>
         </div>
-        <pre class="code-box"><code>// FitnessModule.run(): 공통 인터페이스
-const plan = createGoalPlan(goalMode);
-const target = plan.run(profile);
-
-const foodSearch = new FoodSearchModule(foodDatabase);
-const candidates = foodSearch.run(query);
-
-const mealRecord = new MealRecord(todayMeals);
-const mealSummary = mealRecord.run(target);
-
-const attendance = new AttendanceRecord(members);
-const ranking = attendance.run(selectedDate);</code></pre>
+        <pre class="code-box"><code>const selectedModule = modules[className];
+const result = selectedModule.run(context);</code></pre>
         <div class="code-explain" aria-label="OOP 코드 흐름 설명">
           <div class="code-explain-item">
             <strong>1. 목표 계산</strong>
@@ -2672,49 +2665,67 @@ const ranking = attendance.run(selectedDate);</code></pre>
 
     function showArchitecture(type) {
       const profile = getProfile();
-      const target = createGoalPlan(elements.goalMode.value).run(profile);
-      const goalBase = new GoalPlan("goal", "목표 계산 부모").run(profile);
       const foodQuery = elements.foodSearchInput.value.trim() || "밥";
-      const foodCandidates = new FoodSearchModule(foodDatabase).run(foodQuery);
-      const mealSummary = new MealRecord(state.meals).run(target);
-      const attendance = new AttendanceRecord(state.members).run(elements.groupDate.value || todayString());
-      const cutting = new CuttingPlan().run(profile);
-      const maintain = new MaintainPlan().run(profile);
-      const leanBulk = new LeanBulkPlan().run(profile);
-      const attendedCount = attendance.filter((member) => member.checked).length;
-      const topMember = attendance[0];
+      const selectedDate = elements.groupDate.value || todayString();
+      const target = createGoalPlan(elements.goalMode.value).run(profile);
+      const modules = {
+        fitness: new FitnessModule("fitness"),
+        goal: new GoalPlan("goal", "목표 계산 부모"),
+        foodSearch: new FoodSearchModule(foodDatabase),
+        meal: new MealRecord(state.meals),
+        attendance: new AttendanceRecord(state.members),
+        cut: new CuttingPlan(),
+        maintain: new MaintainPlan(),
+        leanBulk: new LeanBulkPlan()
+      };
+      const contexts = {
+        fitness: undefined,
+        goal: profile,
+        foodSearch: foodQuery,
+        meal: target,
+        attendance: selectedDate,
+        cut: profile,
+        maintain: profile,
+        leanBulk: profile
+      };
+      const selectedModule = modules[type] || modules.fitness;
+      const context = contexts[type];
+      const runResult = selectedModule.run(context);
+      const attendanceResult = modules.attendance.run(selectedDate);
+      const attendedCount = attendanceResult.filter((member) => member.checked).length;
+      const topMember = attendanceResult[0];
       const samples = {
         fitness: {
           title: "FitnessModule.run():",
-          body: "부모 클래스의 공통 인터페이스입니다. GoalPlan, FoodSearchModule, MealRecord, AttendanceRecord가 이를 상속하고, 같은 run() 호출이 목표 계산, 음식 검색, 식단 합산, 운동 출석 랭킹 계산으로 다르게 실행됩니다."
+          body: "부모 클래스의 공통 인터페이스입니다. 선택된 기능 객체가 같은 run() 메서드를 오버라이딩해 목표 계산, 음식 검색, 식단 합산, 운동 출석 랭킹처럼 서로 다른 결과를 출력합니다."
         },
         goal: {
           title: "GoalPlan.run(profile):",
-          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 기초대사량 ${formatNumber(goalBase.bmr)} kcal, 유지 칼로리 ${formatNumber(goalBase.tdee)} kcal를 계산해 자식 플랜들이 재사용할 공통 값을 제공합니다.`
+          body: `목표 계산 클래스들의 부모 로직입니다. 현재 profile 기준 기초대사량 ${formatNumber(runResult.bmr)} kcal, 유지 칼로리 ${formatNumber(runResult.tdee)} kcal를 계산해 자식 플랜들이 재사용할 공통 값을 제공합니다.`
         },
         foodSearch: {
           title: "FoodSearchModule.run(query):",
-          body: `"${escapeHtml(foodQuery)}" 검색어로 로컬 음식 DB를 Map에서 조회하고, 검색 후보 ${foodCandidates.length}개를 Array로 반환했습니다. 첫 번째 후보는 ${escapeHtml(foodCandidates[0]?.name || "없음")}입니다.`
+          body: `"${escapeHtml(foodQuery)}" 검색어로 로컬 음식 DB를 Map에서 조회하고, 검색 후보 ${runResult.length}개를 Array로 반환했습니다. 첫 번째 후보는 ${escapeHtml(runResult[0]?.name || "없음")}입니다.`
         },
         meal: {
           title: "MealRecord.run(target):",
-          body: `오늘 식단 Array를 합산해 총 ${formatNumber(mealSummary.calories)} kcal, 탄 ${formatGram(mealSummary.carb)}, 단 ${formatGram(mealSummary.protein)}, 지 ${formatGram(mealSummary.fat)}를 계산했습니다. 목표 대비 남은 칼로리는 ${formatNumber(mealSummary.remaining)} kcal입니다.`
+          body: `오늘 식단 목록을 합산하여 총 섭취 칼로리 ${formatNumber(runResult.calories)} kcal와 탄 ${formatGram(runResult.carb)}, 단 ${formatGram(runResult.protein)}, 지 ${formatGram(runResult.fat)}를 계산했습니다. 목표 대비 남은 칼로리는 ${formatNumber(runResult.remaining)} kcal입니다.`
         },
         attendance: {
           title: "AttendanceRecord.run(date):",
-          body: `날짜별 운동 출석 기록을 바탕으로 ${attendance.length}명 중 오늘 ${attendedCount}명의 출석을 계산하고, 주간 랭킹 1위 ${topMember?.name || "없음"}의 ${topMember?.week || 0}회 출석과 연속 ${topMember?.streak || 0}일을 계산했습니다.`
+          body: `날짜별 운동 출석 기록을 바탕으로 주간 랭킹과 연속 출석일을 계산했습니다. ${runResult.length}명 중 선택 날짜 출석자는 ${attendedCount}명이고, 주간 랭킹 1위는 ${topMember?.name || "없음"}입니다.`
         },
         cut: {
           title: "CuttingPlan.run(profile):",
-          body: `감량 목표에 맞춰 유지 칼로리 ${formatNumber(cutting.tdee)} kcal에서 ${Math.abs(cutting.adjustment)} kcal를 줄여 오늘 목표 ${formatNumber(cutting.calories)} kcal를 계산했습니다. 탄수화물 ${cutting.carb}g, 단백질 ${cutting.protein}g, 지방 ${cutting.fat}g으로 배분했습니다.`
+          body: `감량 목표에 맞춰 유지 칼로리보다 낮은 오늘 목표 칼로리 ${formatNumber(runResult.calories)} kcal를 계산했습니다. 탄수화물 ${runResult.carb}g, 단백질 ${runResult.protein}g, 지방 ${runResult.fat}g으로 배분했습니다.`
         },
         maintain: {
           title: "MaintainPlan.run(profile):",
-          body: `현재 체중 유지를 위해 유지 칼로리 ${formatNumber(maintain.tdee)} kcal를 그대로 오늘 목표 ${formatNumber(maintain.calories)} kcal로 계산했습니다. 탄수화물 ${maintain.carb}g, 단백질 ${maintain.protein}g, 지방 ${maintain.fat}g으로 배분했습니다.`
+          body: `현재 체중 유지를 위한 오늘 목표 칼로리 ${formatNumber(runResult.calories)} kcal를 계산했습니다. 탄수화물 ${runResult.carb}g, 단백질 ${runResult.protein}g, 지방 ${runResult.fat}g으로 배분했습니다.`
         },
         leanBulk: {
           title: "LeanBulkPlan.run(profile):",
-          body: `체지방 증가를 최소화하기 위해 유지 칼로리 ${formatNumber(leanBulk.tdee)} kcal에 ${leanBulk.adjustment} kcal만 더해 린매스업 목표 ${formatNumber(leanBulk.calories)} kcal를 계산했습니다. 탄수화물 ${leanBulk.carb}g, 단백질 ${leanBulk.protein}g, 지방 ${leanBulk.fat}g으로 배분했습니다.`
+          body: `체지방 증가를 최소화하는 린매스업 목표 칼로리 ${formatNumber(runResult.calories)} kcal를 계산했습니다. 탄수화물 ${runResult.carb}g, 단백질 ${runResult.protein}g, 지방 ${runResult.fat}g으로 배분했습니다.`
         }
       };
       const result = samples[type] || samples.fitness;
