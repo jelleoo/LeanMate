@@ -1,23 +1,26 @@
 # LeanMate
 
-LeanMate는 목표 체중에 맞춰 하루 섭취 칼로리와 탄단지를 계산하고, 식단 기록과 그룹 운동 출석을 함께 관리하는 웹앱입니다.
+LeanMate는 감량, 유지, 린매스업 목표에 맞춰 하루 섭취 칼로리와 탄단지를 계산하고, 식단 기록과 그룹 운동 출석을 함께 관리하는 웹앱입니다.
 
 ## 주요 기능
 
-- 성별, 나이, 키, 현재 체중, 목표 체중 기반 기초대사량 계산
-- 커팅, 유지, 린매스업, 근육량 증가 목적별 하루 권장 칼로리 계산
+- 성별, 나이, 키, 현재 체중 기반 기초대사량 계산
+- 감량, 유지, 린매스업 목적별 하루 권장 칼로리 계산
+- 4주, 8주, 12주 기간 선택에 따른 칼로리 조정
 - 탄수화물, 단백질, 지방 목표 g 계산
 - 음식별 kcal와 탄단지 기록
+- 확장된 로컬 음식 DB, 직접 입력 음식 저장, 즐겨찾기 기반 빠른 식단 추가
 - 목표 대비 남은 kcal와 탄단지 진행률 표시
 - 날짜별 그룹 운동 출석 기록
-- 최근 7일 운동 스트릭과 월간 운동 잔디 시각화
+- 최근 7일 운동 출석 기록과 이번 달 운동 출석 기록 시각화
+- 선택 날짜별 독립 출석 체크
 - 주간 출석 횟수와 연속 출석일 기반 랭킹
-- 친구 출석 상태와 내 스트릭을 비교한 동기부여 문구
+- 친구 출석 상태와 내 연속 출석일을 비교한 동기부여 문구
 - `/api/food-search` 서버리스 함수 기반 음식 영양정보 검색
-- 검색 결과 확인/수정 후 식단 추가
+- 기본 음식 DB 검색 결과 또는 직접 입력값 확인/수정 후 식단 추가
 - OOP 상속 구조를 별도 Architecture 메뉴에서 시각화
 
-## BMR 공식
+## 기초대사량 공식
 
 ```text
 남자: 66.47 + (13.75 * 체중) + (5 * 키) - (6.76 * 나이)
@@ -31,25 +34,33 @@ FitnessModule
 ├─ GoalPlan
 │  ├─ CuttingPlan
 │  ├─ MaintainPlan
-│  ├─ LeanBulkPlan
-│  └─ MuscleGainPlan
+│  └─ LeanBulkPlan
+├─ FoodSearchModule
 ├─ MealRecord
 └─ AttendanceRecord
 ```
 
 - `FitnessModule`: 공통 `run()` 인터페이스를 정의하는 부모 클래스
-- `GoalPlan`: 목표 계산 클래스들의 부모 클래스
-- `CuttingPlan`, `MaintainPlan`, `LeanBulkPlan`, `MuscleGainPlan`: 목적별 칼로리와 탄단지 계산을 오버라이딩
-- `MealRecord`: 식단 배열을 합산해 오늘 섭취량을 계산
-- `AttendanceRecord`: 날짜별 출석 기록을 바탕으로 주간 랭킹 계산
+- `GoalPlan`: 기초대사량과 유지 칼로리를 계산하는 목표 계산 클래스들의 부모 클래스
+- `CuttingPlan`, `MaintainPlan`, `LeanBulkPlan`: 목적별 칼로리와 탄단지 계산을 오버라이딩
+- `FoodSearchModule`: 로컬 음식 DB를 `Map`으로 조회하고 검색 후보 `Array`를 반환
+- `MealRecord`: 식단 배열을 합산해 오늘 섭취량과 남은 칼로리를 계산
+- `AttendanceRecord`: 날짜별 운동 출석 기록을 바탕으로 주간 랭킹과 연속 출석일 계산
+
+Architecture 화면에서는 각 클래스 노드를 클릭하면 해당 클래스 객체의 `run()` 메서드가 호출된 결과가 출력됩니다. 모든 기능 클래스는 같은 `run()` 메서드를 가지고 있지만, 각 클래스가 이를 오버라이딩하여 기초대사량 계산, 감량/유지/린매스업 목표 계산, 음식 검색, 식단 합산, 운동 출석 랭킹 계산처럼 서로 다른 결과를 출력합니다.
+
+```js
+const selectedModule = modules[className];
+const result = selectedModule.run(context);
+```
 
 ## 사용한 자료구조
 
 - `Map`: 음식 이름을 key로 영양성분 조회
-- `Array`: 식단 목록, 그룹원 목록, 출석 날짜 목록 관리
+- `Array`: 식단 목록, 검색 후보 목록, 그룹원 목록, 출석 날짜 목록 관리
 - `Stack`: 마지막 식단 추가 기록 되돌리기
 - `Sort`: 주간 운동 출석 랭킹 계산
-- `Set`: 연속 출석일 계산 시 날짜 포함 여부 확인
+- `Set`: 즐겨찾기 음식 중복 방지와 연속 출석일 계산 시 날짜 포함 여부 확인
 
 ## 실행 방법
 
@@ -94,4 +105,12 @@ POST /api/food-search
 
 Vercel 환경 변수와 Supabase가 설정되어 있으면 그룹 출석은 Supabase에 저장됩니다. 로컬에서 `file://`로 실행하거나 백엔드 설정이 없으면 브라우저 `localStorage`를 fallback 저장소로 사용합니다.
 
-OpenAI API 키는 프론트엔드에 노출하지 않고 `/api/food-search` 서버리스 함수에서만 사용합니다. 음식 검색 결과는 곧바로 저장하지 않고, 사용자가 kcal와 탄단지를 확인하거나 수정한 뒤 식단에 추가합니다.
+OpenAI API 키는 프론트엔드에 노출하지 않고 `/api/food-search` 서버리스 함수에서만 사용합니다. 현재 식단 추가 흐름은 로컬 음식 DB와 직접 입력을 우선 사용하며, 기본 DB 음식은 섭취량만 조절하고 직접 입력 음식은 사용자가 kcal와 탄단지를 입력한 뒤 저장합니다.
+
+## Git 브랜치 관리
+
+- `main`: 안정 버전 유지
+- `feature/goal-calculation`: 목표 분류와 탄단지 계산 공식 수정
+- `feature/deployment-config`: Vercel 배포 설정 수정
+- `feature/local-food-db-and-favorites`: 로컬 음식 DB와 즐겨찾기 기능
+- `feature/final-ui-polish`: 최종 UI/UX 정리
